@@ -1,0 +1,17 @@
+{
+  "description": "Intercepts UserPromptSubmit, scans for API keys/secrets, sanitizes the prompt out of band.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/intercept.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
