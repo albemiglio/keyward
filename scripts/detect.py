@@ -8,7 +8,7 @@ Outputs JSON to stdout: {"secrets": [{"name": str, "value": str, "span": [start,
 Detection sources:
   - "explicit": /key NAME=VALUE, KEY:NAME=VALUE, KEY=VALUE  → user-marked, always treated as secret
   - "regex":    known-prefix patterns (sk-ant, ghp_, AIza, etc.) → high-confidence auto-detect
-  - "gitleaks": OPT-IN second pass via the gitleaks binary (set KEY_VAULT_USE_GITLEAKS=1).
+  - "gitleaks": OPT-IN second pass via the gitleaks binary (set KEYWARD_USE_GITLEAKS=1).
                 Catches formats not in the built-in regex library. Off by default to
                 avoid adding a subprocess spawn to every prompt.
 
@@ -88,7 +88,7 @@ def sanitize_slot_name(raw: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Optional gitleaks pass (opt-in via KEY_VAULT_USE_GITLEAKS=1).
+# Optional gitleaks pass (opt-in via KEYWARD_USE_GITLEAKS=1).
 #
 # gitleaks ships a large, battle-tested rule library that covers many providers
 # our built-in regex list does not. Running it on every prompt costs a subprocess
@@ -100,7 +100,7 @@ def sanitize_slot_name(raw: str) -> str:
 # version-independent.
 # ---------------------------------------------------------------------------
 def gitleaks_enabled() -> bool:
-    return os.environ.get("KEY_VAULT_USE_GITLEAKS") == "1" and shutil.which("gitleaks") is not None
+    return os.environ.get("KEYWARD_USE_GITLEAKS") == "1" and shutil.which("gitleaks") is not None
 
 
 def gitleaks_scan(prompt: str) -> list[tuple[str, str]]:

@@ -7,7 +7,7 @@ argument-hint: <name>=<value>
 
 Syntax: `/key NAME=VALUE`
 
-When you type this, the **key-vault `UserPromptSubmit` hook** detects the
+When you type this, the **Keyward `UserPromptSubmit` hook** detects the
 `NAME=VALUE` pair, saves the value to `~/.claude/secrets/<NAME>.txt` (chmod
 600), blocks the original prompt, and re-submits a sanitized version where the
 value is replaced with `<<secret:NAME stored at ~/.claude/secrets/NAME.txt>>`.

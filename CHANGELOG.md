@@ -34,19 +34,19 @@ Initial release.
   - Windows — PowerShell `SendKeys` + `Set-Clipboard`/`Get-Clipboard`
   - Frontmost-app focus check to abort the paste if focus changed.
   - Clipboard backup/restore around the paste.
-- **Optional gitleaks integration** (opt-in via `KEY_VAULT_USE_GITLEAKS=1`):
+- **Optional gitleaks integration** (opt-in via `KEYWARD_USE_GITLEAKS=1`):
   a second detection pass using the gitleaks binary to catch formats the
   built-in regex misses. Off by default to avoid per-prompt subprocess latency.
 - **Slash commands**: `/key`, `/key-list`, `/key-rm`, `/raw`.
-- **`using-key-vault` skill** that teaches Claude to consume saved secrets via
+- **`using-keyward` skill** that teaches Claude to consume saved secrets via
   `export VAR=$(cat ...)` without leaking them into stdout/context.
 - **Cross-platform secret management** (`scripts/manage_secrets.py`) for
   `/key-list` and `/key-rm` (no bash dependency).
-- **Test suite** (`tests/test_keyvault.py`): 35 stdlib-only unittest cases
+- **Test suite** (`tests/test_keyward.py`): 35 stdlib-only unittest cases
   covering detection, the hook end-to-end (sandboxed), and slot management.
 - **CI** (`.github/workflows/ci.yml`): matrix over Ubuntu / macOS / Windows ×
   Python 3.9 / 3.12, plus a dedicated job exercising the gitleaks path.
-- **`KEY_VAULT_DISABLE_PASTE=1`** escape hatch for SSH / headless / unsupported
+- **`KEYWARD_DISABLE_PASTE=1`** escape hatch for SSH / headless / unsupported
   Wayland compositors (saves + sanitizes, you paste manually).
 
 ### Security
@@ -66,5 +66,5 @@ Initial release.
   `virtual-keyboard-v1` (Sway/Hyprland yes; GNOME no by default).
 - macOS requires Accessibility permission for the terminal app.
 
-[Unreleased]: https://github.com/AlbeMiglio/key-vault-plugin/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/AlbeMiglio/key-vault-plugin/releases/tag/v0.1.0
+[Unreleased]: https://github.com/AlbeMiglio/keyward/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/AlbeMiglio/keyward/releases/tag/v0.1.0

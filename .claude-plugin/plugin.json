@@ -1,12 +1,12 @@
 {
-  "name": "key-vault",
+  "name": "keyward",
   "version": "0.1.0",
   "description": "Auto-detects API keys and secrets in user prompts, saves them to chmod-600 files in ~/.claude/secrets/, blocks the original prompt, and re-submits a sanitized version via OS-level paste automation (macOS). Zero-friction secret hygiene for Claude Code.",
   "author": {
     "name": "Alberto Migliorato"
   },
-  "homepage": "https://github.com/AlbeMiglio/key-vault-plugin",
-  "repository": "https://github.com/AlbeMiglio/key-vault-plugin",
+  "homepage": "https://github.com/AlbeMiglio/keyward",
+  "repository": "https://github.com/AlbeMiglio/keyward",
   "keywords": ["security", "secrets", "api-keys", "hooks", "cross-platform"],
   "license": "MIT"
 }

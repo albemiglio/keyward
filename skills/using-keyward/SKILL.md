@@ -1,11 +1,11 @@
 ---
-name: using-key-vault
+name: using-keyward
 description: Use when a prompt references a file path under ~/.claude/secrets/, or contains a `<<secret:NAME stored at ...>>` reference, or asks to use a saved API key. Teaches the correct pattern for reading vaulted secrets WITHOUT leaking them into bash output, the model context, or the session transcript.
 ---
 
-# Using key-vault secrets safely
+# Using Keyward secrets safely
 
-The `key-vault` plugin saves intercepted API keys to `~/.claude/secrets/<name>.txt`
+The Keyward plugin saves intercepted API keys to `~/.claude/secrets/<name>.txt`
 with chmod 600 permissions. When the user's prompt references one of these
 files — directly or via a `<<secret:NAME stored at ~/.claude/secrets/NAME.txt>>`
 reference — you must read and use the value WITHOUT printing it.
@@ -82,7 +82,7 @@ of the raw value. Treat that reference exactly like a slot path.
 - Do not suggest the user rotate the key just because it was saved. The vault
   is the safe place — only suggest rotation if the value actually leaked
   (e.g., it appeared in a prior assistant reply, was committed to git, or was
-  pasted into a non-`/raw` prompt before key-vault was installed).
+  pasted into a non-`/raw` prompt before Keyward was installed).
 - Do not write the secret value into config files, `.env` files, or anywhere
   on disk outside `~/.claude/secrets/`. If the user needs an `.env`, write a
   reference like `OPENAI_API_KEY=$(cat ~/.claude/secrets/openai.txt)` into

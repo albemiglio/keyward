@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-key-vault demo driver.
+keyward demo driver.
 
 Runs the REAL detection + sanitization engine against a FAKE key, in a
-sandboxed HOME, and narrates each step. Used to render demo/key-vault-demo.gif
+sandboxed HOME, and narrates each step. Used to render demo/keyward-demo.gif
 via VHS (see demo/demo.tape), and runnable standalone:
 
     python3 demo/demo.py
@@ -52,9 +52,13 @@ def main() -> int:
     user_prompt = f"deploy the bot to fly.io using {fake_key}"
 
     try:
-        p(f"{GREY}┌─────────────────────────────────────────────────────────────┐{RESET}")
-        p(f"{GREY}│{RESET}  {BOLD}key-vault{RESET} — secret interception for Claude Code         {GREY}│{RESET}")
-        p(f"{GREY}└─────────────────────────────────────────────────────────────┘{RESET}")
+        title_plain = "Keyward — secret interception for Claude Code"
+        title = f"{BOLD}Keyward{RESET} — secret interception for Claude Code"
+        w = 61  # inner width (number of box-drawing dashes)
+        pad = " " * (w - 2 - len(title_plain))
+        p(f"{GREY}┌{'─' * w}┐{RESET}")
+        p(f"{GREY}│{RESET} {title} {pad}{GREY}│{RESET}")
+        p(f"{GREY}└{'─' * w}┘{RESET}")
         p()
         p(f"{BOLD}1.{RESET} You type a prompt that contains an API key:")
         p()
@@ -97,7 +101,7 @@ def main() -> int:
         p()
         p(f"{GREEN}{BOLD}The raw key never reached the model context or the transcript.{RESET}", pause=PAUSE * 1.5)
         p()
-        p(f"{GREY}gh:{RESET} github.com/AlbeMiglio/key-vault-plugin", pause=0.3)
+        p(f"{GREY}gh:{RESET} github.com/AlbeMiglio/keyward", pause=0.3)
     finally:
         shutil.rmtree(sandbox, ignore_errors=True)
     return 0

@@ -1,5 +1,5 @@
 ---
-description: List all secrets currently saved by key-vault (names only, never values).
+description: List all secrets currently saved by Keyward (names only, never values).
 allowed-tools: Bash(python3:*)
 ---
 

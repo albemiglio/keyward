@@ -1,5 +1,5 @@
 ---
-description: Bypass key-vault detection for this single prompt — useful for discussing key formats, pasting example tokens, or sharing logs that contain dummy secrets.
+description: Bypass Keyward detection for this single prompt — useful for discussing key formats, pasting example tokens, or sharing logs that contain dummy secrets.
 argument-hint: <text>
 ---
 
@@ -7,7 +7,7 @@ argument-hint: <text>
 
 Syntax: `/raw <anything>`
 
-When you prefix a message with `/raw `, the key-vault hook strips the prefix
+When you prefix a message with `/raw `, the Keyward hook strips the prefix
 and re-submits the remainder **without scanning for secrets**. Use this when:
 
 - You want to discuss key formats with Claude (e.g., "what does a sk-ant-

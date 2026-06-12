@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-key-vault — secret slot management (cross-platform helper).
+keyward — secret slot management (cross-platform helper).
 
 Usage:
     manage_secrets.py list

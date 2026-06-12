@@ -1,15 +1,15 @@
-# key-vault
+# Keyward
 
 > **Auto-intercept API keys pasted into Claude Code chat.** Saves the value to
 > a `chmod 600` file before the model sees it, then re-submits a sanitized
 > version of your message automatically. Zero-friction secret hygiene.
 
-[![CI](https://github.com/AlbeMiglio/key-vault-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbeMiglio/key-vault-plugin/actions/workflows/ci.yml)
+[![CI](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 [![Platforms: macOS · Linux · Windows](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-blue)](#installation)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](#requirements)
 
-![key-vault demo](demo/key-vault-demo.gif)
+![keyward demo](demo/keyward-demo.gif)
 
 > The GIF above shows the real detection + sanitization engine. The full
 > in-editor block→auto-paste flow happens inside Claude Code's UI — install it
@@ -158,7 +158,7 @@ or `***` (case-insensitive) is left alone. So discussing key formats like
 **2. Clone the plugin:**
 
 ```bash
-git clone https://github.com/AlbeMiglio/key-vault-plugin.git ~/key-vault-plugin
+git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
 ```
 
 (Or wherever you keep your plugins.)
@@ -167,7 +167,7 @@ git clone https://github.com/AlbeMiglio/key-vault-plugin.git ~/key-vault-plugin
 
 ```bash
 mkdir -p ~/.claude/plugins
-ln -s ~/key-vault-plugin ~/.claude/plugins/key-vault
+ln -s ~/keyward ~/.claude/plugins/keyward
 ```
 
 **4. Grant Accessibility permission to your terminal app:**
@@ -194,7 +194,7 @@ Hooks load at session start; configuration changes require restart.
 In a Claude Code session, run `/hooks` — you should see:
 
 ```
-UserPromptSubmit  →  python3 /Users/you/.claude/plugins/key-vault/hooks/intercept.py
+UserPromptSubmit  →  python3 /Users/you/.claude/plugins/keyward/hooks/intercept.py
 ```
 
 ### Installation — Linux (X11)
@@ -270,7 +270,7 @@ PowerShell ships with Windows — no extra install needed.
 **2. Clone the plugin:**
 
 ```powershell
-git clone https://github.com/AlbeMiglio/key-vault-plugin.git "$env:USERPROFILE\key-vault-plugin"
+git clone https://github.com/AlbeMiglio/keyward.git "$env:USERPROFILE\keyward"
 ```
 
 **3. Link / copy into the plugins directory:**
@@ -281,11 +281,11 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude\plugins"
 
 # Symlink (requires admin OR Developer Mode):
 New-Item -ItemType SymbolicLink `
-    -Path "$env:USERPROFILE\.claude\plugins\key-vault" `
-    -Target "$env:USERPROFILE\key-vault-plugin"
+    -Path "$env:USERPROFILE\.claude\plugins\keyward" `
+    -Target "$env:USERPROFILE\keyward"
 
 # Or copy if symlinks aren't available:
-Copy-Item -Recurse "$env:USERPROFILE\key-vault-plugin" "$env:USERPROFILE\.claude\plugins\key-vault"
+Copy-Item -Recurse "$env:USERPROFILE\keyward" "$env:USERPROFILE\.claude\plugins\keyward"
 ```
 
 **4. Restart Claude Code** and verify with `/hooks`.
@@ -309,7 +309,7 @@ is fragile. You have two options:
 For pure manual mode (no auto-paste, just save + clipboard set), set:
 
 ```bash
-export KEY_VAULT_DISABLE_PASTE=1
+export KEYWARD_DISABLE_PASTE=1
 ```
 
 in your shell rc. The hook will still save and sanitize; you copy and paste
@@ -329,7 +329,7 @@ salva questa KEY=randomvalue123                                 → inline defau
 
 ### Using a saved key in a task
 
-Just reference it. Claude (with the bundled `using-key-vault` skill) knows
+Just reference it. Claude (with the bundled `using-keyward` skill) knows
 to read it safely:
 
 ```
@@ -370,7 +370,7 @@ the vault.
 │   2. detect.py scans prompt with regex + explicit markers               │
 │   3. for each secret: save to ~/.claude/secrets/<name>.txt (chmod 600)  │
 │   4. build sanitized prompt with <<secret:NAME ...>> references         │
-│   5. write sanitized to $TMPDIR/key-vault/sanitized_<rand>.txt          │
+│   5. write sanitized to $TMPDIR/keyward/sanitized_<rand>.txt          │
 │   6. fork-and-detach automate_paste.py (will run AFTER hook returns)    │
 │   7. emit JSON: {"decision":"block","suppressOriginalPrompt":true,...}  │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -404,7 +404,7 @@ the vault.
 ## Architecture
 
 ```
-key-vault/
+keyward/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest (name, version, author, etc.)
 ├── hooks/
@@ -420,14 +420,14 @@ key-vault/
 │   ├── key-rm.md             # /key-rm NAME
 │   └── raw.md                # /raw <text>
 ├── skills/
-│   └── using-key-vault/
+│   └── using-keyward/
 │       └── SKILL.md          # Teaches Claude to use saved keys safely
 ├── tests/
-│   └── test_keyvault.py      # 35 stdlib unittest cases (detect/intercept/manage)
+│   └── test_keyward.py      # 35 stdlib unittest cases (detect/intercept/manage)
 ├── demo/
 │   ├── demo.py               # Narration driver (real engine, fake key, sandboxed)
 │   ├── demo.tape             # VHS script to render the GIF
-│   └── key-vault-demo.gif    # Rendered demo
+│   └── keyward-demo.gif    # Rendered demo
 ├── .github/
 │   └── workflows/
 │       └── ci.yml            # Ubuntu/macOS/Windows × py3.9/3.12 + gitleaks job
@@ -480,7 +480,7 @@ These are real. Read them before relying on this plugin for production secrets.
 
 8. **No SSH / remote / headless support.** The auto-paste needs a display
    server. In SSH sessions or headless environments, set
-   `KEY_VAULT_DISABLE_PASTE=1` — the hook will save and sanitize, you paste
+   `KEYWARD_DISABLE_PASTE=1` — the hook will save and sanitize, you paste
    manually.
 
 ## Troubleshooting
@@ -510,7 +510,7 @@ These are real. Read them before relying on this plugin for production secrets.
 
 - Your compositor probably doesn't support `virtual-keyboard-v1`
 - Test: `wtype "hello"` in a focused text field
-- If it errors, set `KEY_VAULT_DISABLE_PASTE=1` and use clipboard mode
+- If it errors, set `KEYWARD_DISABLE_PASTE=1` and use clipboard mode
 
 **Detection works, paste doesn't (Windows)**
 
@@ -521,7 +521,7 @@ These are real. Read them before relying on this plugin for production secrets.
 
 ```bash
 echo '{"user_prompt": "test ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}' \
-  | python3 ~/.claude/plugins/key-vault/scripts/detect.py
+  | python3 ~/.claude/plugins/keyward/scripts/detect.py
 ```
 
 Should output: `{"secrets": [{"name": "github_pat_classic", "value": "ghp_...", ...}], "raw_mode": false}`
@@ -529,8 +529,8 @@ Should output: `{"secrets": [{"name": "github_pat_classic", "value": "ghp_...", 
 **Test the orchestrator without triggering paste**
 
 ```bash
-KEY_VAULT_DISABLE_PASTE=1 echo '{"user_prompt": "test ghp_aaaa..."}' \
-  | python3 ~/.claude/plugins/key-vault/hooks/intercept.py
+KEYWARD_DISABLE_PASTE=1 echo '{"user_prompt": "test ghp_aaaa..."}' \
+  | python3 ~/.claude/plugins/keyward/hooks/intercept.py
 ```
 
 **Where are the secrets stored?**
@@ -545,9 +545,9 @@ All config is via environment variables:
 
 | Variable | Effect |
 |---|---|
-| `KEY_VAULT_DISABLE_PASTE=1` | Skip the auto-paste spawn entirely. Hook still saves + sanitizes, you paste manually. Useful for SSH, WSL, or unsupported Wayland compositors. |
-| `KEY_VAULT_USE_GITLEAKS=1` | Enable the optional gitleaks detection pass (see below). Requires the `gitleaks` binary in `PATH`. Off by default. |
-| `TMPDIR` / `TEMP` / `TMP` | Override where sanitized tempfiles are written (default: the OS temp dir + `/key-vault`). Honored cross-platform via Python's `tempfile.gettempdir()`. |
+| `KEYWARD_DISABLE_PASTE=1` | Skip the auto-paste spawn entirely. Hook still saves + sanitizes, you paste manually. Useful for SSH, WSL, or unsupported Wayland compositors. |
+| `KEYWARD_USE_GITLEAKS=1` | Enable the optional gitleaks detection pass (see below). Requires the `gitleaks` binary in `PATH`. Off by default. |
+| `TMPDIR` / `TEMP` / `TMP` | Override where sanitized tempfiles are written (default: the OS temp dir + `/keyward`). Honored cross-platform via Python's `tempfile.gettempdir()`. |
 | `CLAUDE_PLUGIN_ROOT` | Set by Claude Code automatically. Falls back to script's parent dir if unset (manual invocation). |
 
 ### Optional: deeper detection with gitleaks
@@ -568,7 +568,7 @@ brew install gitleaks          # macOS
 inherits it):
 
 ```bash
-export KEY_VAULT_USE_GITLEAKS=1
+export KEYWARD_USE_GITLEAKS=1
 ```
 
 **3. Restart Claude Code.**
@@ -586,7 +586,7 @@ default stays fast and conservative.
 
 - Secrets dir: `~/.claude/secrets/`, `chmod 700`
 - Each secret: `~/.claude/secrets/<name>.txt`, `chmod 600`
-- Sanitized tempfiles: `$TMPDIR/key-vault/sanitized_<random-hex>.txt`, `chmod 600`,
+- Sanitized tempfiles: `$TMPDIR/keyward/sanitized_<random-hex>.txt`, `chmod 600`,
   deleted by `automate_paste.py` after paste completes
 - `/key-rm` uses `os.write` over the file contents before unlink (best-effort
   secure delete; **not guaranteed** on SSDs with wear-leveling or COW
@@ -629,8 +629,8 @@ Issues and PRs welcome. Key areas where help is wanted:
 To develop:
 
 ```bash
-git clone https://github.com/AlbeMiglio/key-vault-plugin.git
-cd key-vault-plugin
+git clone https://github.com/AlbeMiglio/keyward.git
+cd keyward
 
 # Run the full test suite (35 tests, stdlib only — no pip install needed)
 python3 -m unittest discover -s tests -p 'test_*.py' -v
@@ -644,7 +644,7 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 echo '{"user_prompt": "test ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}' | python3 scripts/detect.py
 
 # Test the orchestrator end-to-end without triggering the real paste
-KEY_VAULT_DISABLE_PASTE=1 \
+KEYWARD_DISABLE_PASTE=1 \
   python3 hooks/intercept.py <<<'{"user_prompt": "test ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
 
 # Re-render the demo GIF (requires charmbracelet/vhs)
@@ -659,7 +659,7 @@ vhs demo/demo.tape
 | `hooks/intercept.py` | Orchestration: save, sanitize, spawn paste, emit hook JSON. |
 | `scripts/automate_paste.py` | Per-platform paste backends. Add compositor support here. |
 | `scripts/manage_secrets.py` | `/key-list` and `/key-rm` implementation. |
-| `tests/test_keyvault.py` | The whole test suite. Add a case alongside any change. |
+| `tests/test_keyward.py` | The whole test suite. Add a case alongside any change. |
 | `demo/` | `demo.py` narration driver + `demo.tape` VHS script. |
 
 ## License

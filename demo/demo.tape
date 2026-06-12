@@ -1,8 +1,8 @@
-# VHS tape for the key-vault demo GIF.
+# VHS tape for the keyward demo GIF.
 # Render with:  vhs demo/demo.tape   (run from the plugin root)
 # Requires: https://github.com/charmbracelet/vhs
 
-Output demo/key-vault-demo.gif
+Output demo/keyward-demo.gif
 
 Set Shell "bash"
 Set FontSize 17

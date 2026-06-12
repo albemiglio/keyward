@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-key-vault — UserPromptSubmit hook entry point (cross-platform).
+keyward — UserPromptSubmit hook entry point (cross-platform).
 
 Pipeline:
     stdin (UserPromptSubmit JSON)
@@ -11,7 +11,7 @@ Pipeline:
         ↓
     build sanitized prompt (each secret span → <<secret:NAME stored at ...>>)
         ↓
-    write sanitized → $TMPDIR/key-vault/sanitized_<random>.txt  (chmod 600)
+    write sanitized → $TMPDIR/keyward/sanitized_<random>.txt  (chmod 600)
         ↓
     spawn automate_paste.py DETACHED  (cross-platform paste+enter automation)
         ↓
@@ -39,7 +39,7 @@ SCRIPTS_DIR = PLUGIN_ROOT / "scripts"
 SECRETS_DIR = Path.home() / ".claude" / "secrets"
 # tempfile.gettempdir() is cross-platform (honors TMPDIR on Unix, TEMP/TMP on
 # Windows) — never hardcode /tmp, which doesn't exist on Windows.
-TMP_DIR = Path(tempfile.gettempdir()) / "key-vault"
+TMP_DIR = Path(tempfile.gettempdir()) / "keyward"
 
 # Make detect.py importable.
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -121,12 +121,12 @@ def get_frontmost_app() -> str:
 def spawn_detached(cmd: list[str]) -> None:
     """Spawn a child process that survives this process exiting.
 
-    Honors KEY_VAULT_DISABLE_PASTE=1 to skip the automation entirely. Useful for
+    Honors KEYWARD_DISABLE_PASTE=1 to skip the automation entirely. Useful for
     testing, headless environments, or users who prefer to paste manually
     (the sanitized text is still written to the tempfile path passed to the
     spawn — they can read it from there or from the clipboard if backend set it).
     """
-    if os.environ.get("KEY_VAULT_DISABLE_PASTE") == "1":
+    if os.environ.get("KEYWARD_DISABLE_PASTE") == "1":
         return
     if sys.platform == "win32":
         # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
@@ -194,7 +194,7 @@ def main() -> int:
         ])
         emit({
             "decision": "block",
-            "reason": "[key-vault] /raw mode — prompt re-submitted without prefix.",
+            "reason": "[keyward] /raw mode — prompt re-submitted without prefix.",
             "suppressOriginalPrompt": True,
         })
         return 0
@@ -226,7 +226,7 @@ def main() -> int:
 
     summary = ", ".join(f"{name} [{source}]" for name, source in saved)
     reason = (
-        f"[key-vault] Intercepted {len(saved)} secret(s): {summary}. "
+        f"[keyward] Intercepted {len(saved)} secret(s): {summary}. "
         f"Saved to ~/.claude/secrets/ (chmod 600). "
         f"Sanitized prompt queued for auto-paste."
     )

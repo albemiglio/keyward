@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-key-vault test suite — cross-platform, stdlib-only (unittest).
+keyward test suite — cross-platform, stdlib-only (unittest).
 
 Run:
     python3 -m unittest discover -s tests -p 'test_*.py' -v
     # or
-    python3 tests/test_keyvault.py
+    python3 tests/test_keyward.py
 
 No third-party dependencies. The gitleaks integration tests self-skip when the
 gitleaks binary is not installed.
@@ -161,11 +161,11 @@ class TestDetect(unittest.TestCase):
         # 32-hex generic api key assignment — not in our regex list
         value = "a1b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5"
         prompt = f'const apiKey = "{value}";'
-        os.environ["KEY_VAULT_USE_GITLEAKS"] = "1"
+        os.environ["KEYWARD_USE_GITLEAKS"] = "1"
         try:
             result = detect.detect(prompt)
         finally:
-            os.environ.pop("KEY_VAULT_USE_GITLEAKS", None)
+            os.environ.pop("KEYWARD_USE_GITLEAKS", None)
         sources = {s["source"] for s in result["secrets"]}
         self.assertIn("gitleaks", sources, f"gitleaks should have flagged {value}, got {result}")
         # span correctness for the gitleaks finding
@@ -176,7 +176,7 @@ class TestDetect(unittest.TestCase):
 
     def test_gitleaks_off_by_default(self):
         # Without the env var, gitleaks must NOT run (no subprocess, no findings from it)
-        os.environ.pop("KEY_VAULT_USE_GITLEAKS", None)
+        os.environ.pop("KEYWARD_USE_GITLEAKS", None)
         self.assertFalse(detect.gitleaks_enabled())
 
 
@@ -202,8 +202,8 @@ class TestIntercept(unittest.TestCase):
         env["TMPDIR"] = str(self.tmp)
         env["TEMP"] = str(self.tmp)  # Windows
         env["TMP"] = str(self.tmp)  # Windows
-        env["KEY_VAULT_DISABLE_PASTE"] = "1"  # never trigger real paste in tests
-        env.pop("KEY_VAULT_USE_GITLEAKS", None)
+        env["KEYWARD_DISABLE_PASTE"] = "1"  # never trigger real paste in tests
+        env.pop("KEYWARD_USE_GITLEAKS", None)
         proc = subprocess.run(
             [sys.executable, str(HOOKS_DIR / "intercept.py")],
             input=json.dumps({"user_prompt": prompt}),
@@ -220,7 +220,7 @@ class TestIntercept(unittest.TestCase):
         return self.home / ".claude" / "secrets"
 
     def sanitized_files(self) -> list[Path]:
-        kv_tmp = self.tmp / "key-vault"
+        kv_tmp = self.tmp / "keyward"
         if not kv_tmp.is_dir():
             return []
         return sorted(kv_tmp.glob("sanitized_*.txt"))
