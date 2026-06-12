@@ -1,7 +1,7 @@
 {
   "name": "keyward",
   "version": "0.1.0",
-  "description": "Auto-detects API keys and secrets in user prompts, saves them to chmod-600 files in ~/.claude/secrets/, blocks the original prompt, and re-submits a sanitized version via OS-level paste automation (macOS). Zero-friction secret hygiene for Claude Code.",
+  "description": "Auto-detects API keys and secrets in your prompts, saves them to chmod-600 files in ~/.claude/secrets/, blocks the original prompt, and re-submits a sanitized version via OS-level paste automation. Cross-platform (macOS, Linux, Windows). Zero-friction secret hygiene for Claude Code.",
   "author": {
     "name": "Alberto Migliorato"
   },
