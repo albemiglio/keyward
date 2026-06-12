@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyward — Stop leaking API keys into Claude Code</title>
+<meta name="description" content="Keyward is an open-source Claude Code plugin that intercepts API keys you paste into the chat — before they reach the model. It saves the secret to a chmod-600 file, blocks the prompt, and re-submits a sanitized version automatically. Cross-platform.">
+<link rel="canonical" href="https://albemiglio.github.io/keyward/">
+<meta name="robots" content="index,follow">
+<meta name="author" content="Alberto Migliorato">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://albemiglio.github.io/keyward/">
+<meta property="og:title" content="Keyward — Stop leaking API keys into Claude Code">
+<meta property="og:description" content="Intercepts API keys you paste into Claude Code before they reach the model. Saves, blocks, and re-submits a sanitized prompt automatically. Open source, cross-platform.">
+<meta property="og:image" content="https://albemiglio.github.io/keyward/assets/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Keyward — Stop leaking API keys into Claude Code">
+<meta name="twitter:description" content="Catches API keys you paste into Claude Code before they reach the model. Open source, cross-platform.">
+<meta name="twitter:image" content="https://albemiglio.github.io/keyward/assets/social-preview.png">
+
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+
+<!-- SoftwareApplication schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Keyward",
+  "applicationCategory": "DeveloperApplication",
+  "applicationSubCategory": "Claude Code plugin",
+  "operatingSystem": "macOS, Linux, Windows",
+  "description": "Open-source Claude Code plugin that intercepts API keys pasted into the chat before they reach the model, saves them to chmod-600 files, blocks the original prompt, and re-submits a sanitized version automatically.",
+  "url": "https://albemiglio.github.io/keyward/",
+  "downloadUrl": "https://github.com/AlbeMiglio/keyward",
+  "license": "https://opensource.org/licenses/MIT",
+  "softwareVersion": "0.1.0",
+  "author": { "@type": "Person", "name": "Alberto Migliorato", "url": "https://github.com/AlbeMiglio" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "keywords": "Claude Code, API key, secrets, redaction, UserPromptSubmit hook, security"
+}
+</script>
+<!-- FAQ schema (AI / LLM citation) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"Does the API key still get sent to Anthropic?","acceptedAnswer":{"@type":"Answer","text":"No. Keyward's UserPromptSubmit hook runs before the prompt is sent. It blocks the original message containing the raw key and re-submits a sanitized version, so the model and the API only ever see a placeholder reference."}},
+    {"@type":"Question","name":"How does Keyward keep secrets out of Claude Code?","acceptedAnswer":{"@type":"Answer","text":"It scans every prompt you submit with regex for about twenty provider formats plus optional gitleaks. When it finds a key it saves the value to a chmod-600 file in ~/.claude/secrets/, blocks the prompt, and auto-pastes a sanitized version referencing the file instead of the value."}},
+    {"@type":"Question","name":"Which platforms does Keyward support?","acceptedAnswer":{"@type":"Answer","text":"macOS, Linux (X11 and Wayland), and Windows. The sanitized re-paste is automated per platform via osascript, xdotool, wtype, or PowerShell SendKeys."}},
+    {"@type":"Question","name":"Is Keyward free and open source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Keyward is MIT-licensed, has no network calls or telemetry, and is available on GitHub at github.com/AlbeMiglio/keyward."}}
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --ink:#16171D; --paper:#F4F3EE; --red:#E5484D; --grey:#6B6A65;
+    --line:#E3E2DD; --paper2:#EEEDE7; --code:#1c1d24;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,"Helvetica Neue",Inter,Arial,sans-serif;
+    color:var(--ink);background:var(--paper);line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  .accent{color:var(--red)}
+  code,kbd{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+
+  /* nav */
+  header{border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.02em;font-size:19px}
+  .brand svg{width:30px;height:30px;display:block}
+  .nav-links{display:flex;gap:24px;font-size:14px;color:var(--grey)}
+  .nav-links a:hover{color:var(--ink)}
+  @media(max-width:600px){.nav-links{display:none}}
+
+  /* hero */
+  .hero{padding:84px 0 64px}
+  .eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey);font-weight:600}
+  .eyebrow::after{content:"";display:block;width:56px;height:6px;background:var(--red);margin-top:14px}
+  h1{font-size:clamp(40px,7vw,78px);line-height:1.02;letter-spacing:-.035em;font-weight:700;margin:26px 0 22px;max-width:14ch}
+  .lede{font-size:clamp(18px,2.4vw,23px);color:#2A2B2F;max-width:60ch;margin-bottom:34px}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid var(--ink)}
+  .btn-primary{background:var(--ink);color:var(--paper)}
+  .btn-primary:hover{background:#000}
+  .btn-ghost:hover{background:var(--paper2)}
+
+  /* install bar */
+  .install{margin-top:30px;background:var(--code);border-radius:12px;padding:18px 20px;font-size:14px;color:#E8E8EA;overflow-x:auto}
+  .install .c{display:block;white-space:nowrap}
+  .install .p{color:#7d8590;user-select:none}
+  .install .g{color:#7ee787}
+
+  /* sections */
+  section{padding:70px 0;border-top:1px solid var(--line)}
+  .kicker{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:16px}
+  h2{font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;line-height:1.08;font-weight:700;max-width:18ch;margin-bottom:20px}
+  .sub{font-size:18px;color:#2A2B2F;max-width:62ch;margin-bottom:8px}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:42px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+  .step{border:1px solid var(--line);border-radius:14px;padding:26px;background:#fff}
+  .step .n{font-size:13px;font-weight:700;color:var(--red);letter-spacing:.1em}
+  .step h3{font-size:19px;letter-spacing:-.01em;margin:10px 0 8px}
+  .step p{font-size:14.5px;color:var(--grey)}
+
+  /* demo */
+  .demo{margin-top:48px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+  .demo img{display:block;width:100%;height:auto}
+
+  /* providers */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+  .chip{font-size:13px;color:var(--ink);background:var(--paper2);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+
+  /* compare */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+  @media(max-width:760px){.compare{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:14px;padding:26px;background:#fff}
+  .card.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .card h3{font-size:18px;margin-bottom:14px;letter-spacing:-.01em}
+  .card ul{list-style:none;font-size:14.5px}
+  .card li{padding:7px 0 7px 26px;position:relative;color:var(--grey)}
+  .card.dark li{color:#cfcec8}
+  .card li::before{content:"";position:absolute;left:0;top:13px;width:9px;height:9px;border-radius:2px;background:var(--line)}
+  .card.dark li::before{background:var(--red)}
+  .card.dark li.k::before{background:var(--red)}
+
+  /* faq */
+  details{border-top:1px solid var(--line);padding:20px 0}
+  details summary{font-size:18px;font-weight:600;cursor:pointer;letter-spacing:-.01em;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";color:var(--red);font-weight:400;font-size:24px}
+  details[open] summary::after{content:"–"}
+  details p{margin-top:12px;color:#2A2B2F;max-width:64ch;font-size:15.5px}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:48px 0;color:var(--grey);font-size:14px}
+  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px}
+  .foot a{text-decoration:none}
+  .foot a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="/keyward/" aria-label="Keyward home">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><rect x="12" y="12" width="76" height="76" rx="19" fill="#16171D"/><circle cx="50" cy="37" r="12" fill="none" stroke="#F4F3EE" stroke-width="7"/><rect x="46.5" y="49" width="7" height="27" rx="1.5" fill="#F4F3EE"/><rect x="53.5" y="60" width="10" height="5.5" fill="#E5484D"/><rect x="53.5" y="69" width="7" height="5.5" fill="#E5484D"/></svg>
+        Keyward
+      </a>
+      <div class="nav-links">
+        <a href="#how">How it works</a>
+        <a href="#compare">Alternatives</a>
+        <a href="#install">Install</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/AlbeMiglio/keyward">GitHub</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="wrap">
+    <section class="hero" style="border-top:none">
+      <div class="eyebrow">Claude Code plugin · open source</div>
+      <h1>Keep API keys out of your Claude&nbsp;Code prompts.</h1>
+      <p class="lede">Paste a key into Claude Code and it's sent to the API <em>and</em> written to your session transcript. <strong>Keyward</strong> catches it first — saving the secret to a <code>chmod&nbsp;600</code> file, blocking the prompt, and re-submitting a sanitized version automatically.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#install">Install Keyward</a>
+        <a class="btn btn-ghost" href="https://github.com/AlbeMiglio/keyward">View on GitHub →</a>
+      </div>
+      <div class="install" aria-label="Install commands">
+        <span class="c"><span class="p">›</span> /plugin marketplace add AlbeMiglio/keyward</span>
+        <span class="c"><span class="p">›</span> /plugin install keyward@keyward</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- PROBLEM / HOW -->
+  <section id="how">
+    <div class="wrap">
+      <div class="kicker">How it works</div>
+      <h2>Secrets never reach the model.</h2>
+      <p class="sub">Keyward registers a <code>UserPromptSubmit</code> hook — the one point that runs <em>before</em> your message is sent to Claude. Every prompt is scanned, and any API key is intercepted on the way out.</p>
+      <div class="steps">
+        <div class="step"><div class="n">01 · DETECT</div><h3>Scan every prompt</h3><p>Regex for ~20 providers (Anthropic, OpenAI, GitHub, AWS, Stripe, Google…), explicit <code>/key</code> markers, and an optional gitleaks pass.</p></div>
+        <div class="step"><div class="n">02 · BLOCK</div><h3>Save &amp; stop the leak</h3><p>The value is written to <code>~/.claude/secrets/</code> at <code>chmod&nbsp;600</code> and the original prompt is blocked — it never hits the API or the transcript.</p></div>
+        <div class="step"><div class="n">03 · RE-SUBMIT</div><h3>Sanitized, automatically</h3><p>A cleaned prompt is pasted and sent for you, with the key replaced by a <code>&lt;&lt;secret:…&gt;&gt;</code> reference. You press Enter once.</p></div>
+      </div>
+      <figure class="demo">
+        <img src="assets/keyward-demo.gif" width="1200" height="760" alt="Keyward detecting a GitHub token in a Claude Code prompt, saving it to a chmod-600 file, and re-submitting a sanitized version" loading="lazy">
+      </figure>
+    </div>
+  </section>
+
+  <!-- CATCHES -->
+  <section>
+    <div class="wrap">
+      <div class="kicker">Detection</div>
+      <h2>It knows what a key looks like.</h2>
+      <p class="sub">Around twenty provider formats are caught with no marker needed. Anything custom, you tag with <code>/key name=value</code>. Example/placeholder values are ignored, so you can still talk about key formats freely.</p>
+      <div class="chips">
+        <span class="chip">sk-ant- · Anthropic</span><span class="chip">sk-proj- · OpenAI</span><span class="chip">ghp_ · GitHub</span><span class="chip">AKIA · AWS</span><span class="chip">AIza · Google</span><span class="chip">sk_live_ · Stripe</span><span class="chip">xox… · Slack</span><span class="chip">hf_ · Hugging Face</span><span class="chip">glpat- · GitLab</span><span class="chip">JWT</span><span class="chip">+ gitleaks (opt-in)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="compare">
+    <div class="wrap">
+      <div class="kicker">Where Keyward fits</div>
+      <h2>Built for the keys you <span class="accent">paste</span>.</h2>
+      <p class="sub">Most tools for keeping secrets out of Claude Code stop the agent from <em>reading</em> your <code>.env</code> files, or live in the browser. Keyward covers the other vector — the credential you type or paste into the chat yourself.</p>
+      <div class="compare">
+        <div class="card dark">
+          <h3>Keyward</h3>
+          <ul>
+            <li class="k">Intercepts keys you paste into the prompt</li>
+            <li class="k">Auto re-submits a sanitized message</li>
+            <li class="k">Saves the secret so Claude can still use it safely</li>
+            <li class="k">Cross-platform: macOS, Linux, Windows</li>
+            <li class="k">MIT, no network calls, no telemetry</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Other approaches</h3>
+          <ul>
+            <li><strong>sensitive-canary</strong> — also a UserPromptSubmit hook; blocks sensitive prompts and .env reads</li>
+            <li><strong>nopeek · cc-redact</strong> — redact secrets when Claude <em>reads</em> files</li>
+            <li><strong>Browser extensions</strong> — catch pastes in the web UI, not the terminal</li>
+            <li><strong>Proxies / 1Password CLI</strong> — keep keys out of reach entirely</li>
+          </ul>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:22px;font-size:15px;color:var(--grey)">A full side-by-side comparison lives in the <a href="https://github.com/AlbeMiglio/keyward/wiki" style="color:var(--ink)">project wiki</a>. Keyward is defense-in-depth, not a replacement for a real secret manager — see the honest security model.</p>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="install">
+    <div class="wrap">
+      <div class="kicker">Install</div>
+      <h2>Two lines, then restart.</h2>
+      <p class="sub">In a Claude Code session:</p>
+      <div class="install" style="margin-top:22px">
+        <span class="c"><span class="p">›</span> /plugin marketplace add AlbeMiglio/keyward</span>
+        <span class="c"><span class="p">›</span> /plugin install keyward<span class="g">@keyward</span></span>
+      </div>
+      <p class="sub" style="margin-top:20px;font-size:15px;color:var(--grey)">On macOS, grant your terminal Accessibility permission so the auto-paste can run. On Linux install <code>xdotool</code>/<code>wtype</code> for your display server. Prefer reading the code first? Clone &amp; symlink — <a href="https://github.com/AlbeMiglio/keyward#install" style="color:var(--ink)">full per-platform guide</a>.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="kicker">FAQ</div>
+      <h2>Straight answers.</h2>
+      <details open><summary>Does the API key still get sent to Anthropic?</summary><p>No. The <code>UserPromptSubmit</code> hook runs before the prompt is sent. Keyward blocks the original message containing the raw key and re-submits a sanitized version, so the model and the API only ever see a <code>&lt;&lt;secret:…&gt;&gt;</code> reference.</p></details>
+      <details><summary>How does Keyward keep secrets out of Claude Code?</summary><p>It scans every prompt with regex for about twenty provider formats plus an optional gitleaks pass. When it finds a key it saves the value to a <code>chmod&nbsp;600</code> file in <code>~/.claude/secrets/</code>, blocks the prompt, and auto-pastes a sanitized version that references the file instead of the value.</p></details>
+      <details><summary>Can Claude still use the key after it's saved?</summary><p>Yes. A bundled skill teaches Claude to read the saved secret inline in a single shell command — <code>export VAR=$(cat ~/.claude/secrets/x.txt) &amp;&amp; cmd</code> — so the value flows from disk into the process environment, never through stdout or the model's context.</p></details>
+      <details><summary>Which platforms are supported?</summary><p>macOS, Linux (X11 and Wayland), and Windows. The sanitized re-paste is automated per platform via osascript, xdotool, wtype, or PowerShell SendKeys. On unsupported setups you can paste manually with <code>KEYWARD_DISABLE_PASTE=1</code>.</p></details>
+      <details><summary>Is it safe to trust a security tool with my keys?</summary><p>Keyward is MIT-licensed, makes no network calls, has no telemetry and no dependencies beyond Python and your OS. Secrets are stored as <code>chmod&nbsp;600</code> plaintext — the same trust model as <code>~/.aws/credentials</code> or a <code>.env</code> file. It's defense-in-depth, not a replacement for a real secret manager. The wiki documents exactly what it does and does not protect.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <strong style="color:var(--ink)">Keyward</strong> — secrets stay out of the prompt.<br>
+      MIT licensed · built by <a href="https://github.com/AlbeMiglio">Alberto Migliorato</a>
+    </div>
+    <div style="display:flex;gap:22px;flex-wrap:wrap">
+      <a href="https://github.com/AlbeMiglio/keyward">GitHub</a>
+      <a href="https://github.com/AlbeMiglio/keyward/wiki">Docs / Wiki</a>
+      <a href="https://github.com/AlbeMiglio/keyward/releases">Releases</a>
+      <a href="llms.txt">llms.txt</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

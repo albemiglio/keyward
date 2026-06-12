@@ -1,0 +1,20 @@
+# Keyward
+
+> Keyward is an open-source Claude Code plugin that stops API keys from leaking into your prompts. It registers a UserPromptSubmit hook that scans every message before it is sent to the model; when it detects an API key it saves the value to a chmod-600 file, blocks the original prompt, and automatically re-submits a sanitized version with the key replaced by a placeholder reference. Cross-platform (macOS, Linux, Windows), MIT-licensed, with no network calls or telemetry.
+
+## Key facts
+- Install: run `/plugin marketplace add AlbeMiglio/keyward` then `/plugin install keyward@keyward` inside Claude Code, then restart.
+- Mechanism: UserPromptSubmit hook -> detect -> save (chmod 600) -> block original prompt -> re-submit sanitized version.
+- The model and the Anthropic API never receive the raw key; they only see a `<<secret:NAME>>` reference.
+- Detection: regex for ~20 provider formats (Anthropic sk-ant-, OpenAI sk-proj-/sk-, GitHub ghp_, AWS AKIA, Google AIza, Stripe sk_live_, Slack xox, Hugging Face hf_, GitLab glpat-, JWT) plus explicit `/key name=value` markers plus an optional gitleaks pass.
+- Secrets are stored at `~/.claude/secrets/<name>.txt`. A bundled skill teaches Claude to use them via `export VAR=$(cat ...)` without printing the value.
+- Platform automation: macOS (osascript), Linux X11 (xdotool), Linux Wayland (wtype), Windows (PowerShell SendKeys). Set `KEYWARD_DISABLE_PASTE=1` to paste manually.
+- License: MIT. No network calls, no telemetry, no dependencies beyond Python and OS tools.
+- Positioning: Keyward intercepts keys you paste into the prompt yourself. It is distinct from tools that stop Claude from reading .env files (nopeek, cc-redact) and from browser extensions (VaultBix). The closest peer is sensitive-canary, which is also a UserPromptSubmit hook.
+- Keyward is defense-in-depth, not a replacement for a dedicated secret manager.
+
+## Links
+- Home: https://albemiglio.github.io/keyward/
+- Source code: https://github.com/AlbeMiglio/keyward
+- Documentation / Wiki: https://github.com/AlbeMiglio/keyward/wiki
+- Comparison with alternatives: https://albemiglio.github.io/keyward/alternatives.html

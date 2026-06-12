@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyward vs sensitive-canary, nopeek &amp; cc-redact — Claude Code secret tools compared</title>
+<meta name="description" content="An honest comparison of plugins and tools that keep API keys and secrets out of Claude Code: Keyward, sensitive-canary, nopeek, cc-redact, claude-secrets, and browser extensions like VaultBix — by vector, mechanism, and platform.">
+<link rel="canonical" href="https://albemiglio.github.io/keyward/alternatives.html">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://albemiglio.github.io/keyward/alternatives.html">
+<meta property="og:title" content="Claude Code secret-redaction tools, compared">
+<meta property="og:description" content="Keyward vs sensitive-canary, nopeek, cc-redact and more — which vector each one actually protects.">
+<meta property="og:image" content="https://albemiglio.github.io/keyward/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://albemiglio.github.io/keyward/assets/social-preview.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+  :root{--ink:#16171D;--paper:#F4F3EE;--red:#E5484D;--grey:#6B6A65;--line:#E3E2DD;--paper2:#EEEDE7}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Helvetica Neue",Inter,Arial,sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 28px}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+  header{border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.02em;font-size:19px;text-decoration:none}
+  .brand svg{width:30px;height:30px}
+  .nav-links{display:flex;gap:24px;font-size:14px;color:var(--grey)}
+  .nav-links a{text-decoration:none}.nav-links a:hover{color:var(--ink)}
+  @media(max-width:600px){.nav-links{display:none}}
+  .hero{padding:72px 0 36px}
+  .eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:700}
+  h1{font-size:clamp(32px,5.5vw,56px);line-height:1.05;letter-spacing:-.035em;font-weight:700;margin:18px 0 20px;max-width:20ch}
+  .lede{font-size:clamp(17px,2.2vw,21px);color:#2A2B2F;max-width:62ch}
+  section{padding:30px 0 64px}
+  h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.03em;margin:40px 0 18px;font-weight:700}
+  p.body{font-size:17px;color:#2A2B2F;max-width:64ch;margin-bottom:16px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin:28px 0;background:#fff}
+  table{border-collapse:collapse;width:100%;min-width:720px;font-size:14.5px}
+  th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--ink);color:var(--paper);font-weight:600;letter-spacing:-.01em;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td.k{font-weight:600}
+  .tag{display:inline-block;font-size:12px;background:var(--paper2);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink)}
+  .yes{color:var(--red);font-weight:700}
+  .note{font-size:13.5px;color:var(--grey);max-width:70ch;margin-top:10px}
+  .cta{display:inline-flex;gap:8px;padding:13px 22px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none;background:var(--ink);color:var(--paper);border:1px solid var(--ink);margin-top:8px}
+  footer{border-top:1px solid var(--line);padding:44px 0;color:var(--grey);font-size:14px}
+  .foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .foot a{text-decoration:none}.foot a:hover{color:var(--ink)}
+</style>
+</head>
+<body>
+<header><div class="wrap"><nav>
+  <a class="brand" href="/keyward/"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="12" y="12" width="76" height="76" rx="19" fill="#16171D"/><circle cx="50" cy="37" r="12" fill="none" stroke="#F4F3EE" stroke-width="7"/><rect x="46.5" y="49" width="7" height="27" rx="1.5" fill="#F4F3EE"/><rect x="53.5" y="60" width="10" height="5.5" fill="#E5484D"/><rect x="53.5" y="69" width="7" height="5.5" fill="#E5484D"/></svg>Keyward</a>
+  <div class="nav-links"><a href="/keyward/#how">How it works</a><a href="/keyward/#install">Install</a><a href="https://github.com/AlbeMiglio/keyward">GitHub</a></div>
+</nav></div></header>
+
+<main>
+<div class="wrap">
+  <section class="hero" style="padding-bottom:0">
+    <div class="eyebrow">Comparison</div>
+    <h1>Claude Code secret tools, honestly compared.</h1>
+    <p class="lede">Several plugins keep API keys out of Claude Code — but they guard different leak paths. Here's which vector each one actually covers, and where Keyward fits.</p>
+  </section>
+
+  <section>
+    <h2>Three different leak paths</h2>
+    <p class="body">A secret can reach Claude three ways: <strong>you paste it into the prompt</strong>, <strong>Claude reads it out of a file</strong> (like <code>.env</code>) while working, or <strong>you paste it into the web UI</strong>. Most tools specialise in one. Keyward owns the first.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Primary leak path</th><th>Auto re-submits clean prompt</th><th>Runs in</th><th>Open source</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">Keyward</td><td>Key you <strong>paste into the prompt</strong></td><td><span class="yes">Yes</span></td><td>Terminal (UserPromptSubmit hook)</td><td>MIT</td></tr>
+          <tr><td class="k"><a href="https://dev.to/chataclaw/stop-claude-code-from-leaking-your-secrets-introducing-sensitive-canary-826">sensitive-canary</a></td><td>Pasted prompt <span class="tag">+ .env reads</span></td><td>Blocks (no auto re-submit)</td><td>Terminal (UserPromptSubmit hook)</td><td>Yes</td></tr>
+          <tr><td class="k"><a href="https://scottspence.com/posts/nopeek-keep-secrets-out-of-claude-code">nopeek</a></td><td>Claude <strong>reading</strong> files / CLI output</td><td>—</td><td>CLI + plugin (named profiles)</td><td>Yes</td></tr>
+          <tr><td class="k"><a href="https://github.com/ShindouMihou/cc-redact/">cc-redact</a></td><td>Claude <strong>reading</strong> secret files</td><td>— (type-preserving redaction)</td><td>Terminal (PreToolUse/PostToolUse)</td><td>Yes</td></tr>
+          <tr><td class="k"><a href="https://github.com/henghonglee/claude-secrets">claude-secrets</a></td><td>Stored secrets + output redaction</td><td>— (vault + <code>{{SECRET}}</code> injection)</td><td>Terminal / MCP</td><td>Yes</td></tr>
+          <tr><td class="k"><a href="https://vaultbix.com/">VaultBix</a></td><td>Pastes in the <strong>browser</strong> UI</td><td>Blocks in-browser</td><td>Chrome extension (multi-AI)</td><td>Freemium</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Based on each project's public documentation as of June 2026 — behaviour changes, so check the source before relying on any detail. This page is maintained by Keyward and aims to be fair, not to disparage; these are good tools solving adjacent problems.</p>
+  </section>
+
+  <section>
+    <h2>Keyward vs sensitive-canary</h2>
+    <p class="body">The closest peer. Both register a <code>UserPromptSubmit</code> hook and stop secrets before they reach the API. The difference is what happens next: sensitive-canary <em>blocks</em> the prompt and asks you to retry; Keyward saves the value, blocks, and <strong>automatically re-submits a sanitized version</strong> — then a bundled skill lets Claude actually <em>use</em> the saved key via <code>export VAR=$(cat …)</code> without ever printing it. Keyward also ships cross-platform paste automation (macOS, Linux, Windows) and ~20 provider regexes plus optional gitleaks.</p>
+  </section>
+
+  <section>
+    <h2>When to pick something else</h2>
+    <p class="body">If your main worry is Claude <strong>reading <code>.env</code> files</strong> while it works, a file-redaction tool like nopeek or cc-redact is the better fit — or run both alongside Keyward, since they cover different paths. If you paste keys into <strong>web chat</strong> (ChatGPT, Claude.ai) rather than the terminal, a browser extension is the right layer. And for high-value production secrets, none of these replace a real secret manager — keep those in 1Password, Vault, or your cloud's KMS and reference them by name.</p>
+    <a class="cta" href="/keyward/#install">Install Keyward →</a>
+  </section>
+</div>
+</main>
+
+<footer><div class="wrap foot">
+  <div><strong style="color:var(--ink)">Keyward</strong> — secrets stay out of the prompt. · MIT</div>
+  <div style="display:flex;gap:22px;flex-wrap:wrap"><a href="/keyward/">Home</a><a href="https://github.com/AlbeMiglio/keyward">GitHub</a><a href="https://github.com/AlbeMiglio/keyward/wiki">Docs</a></div>
+</div></footer>
+</body>
+</html>

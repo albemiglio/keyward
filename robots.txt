@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://albemiglio.github.io/keyward/sitemap.xml
