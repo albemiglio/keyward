@@ -16,8 +16,8 @@
       "author": {
         "name": "Alberto Migliorato"
       },
-      "homepage": "https://github.com/AlbeMiglio/keyward",
-      "repository": "https://github.com/AlbeMiglio/keyward",
+      "homepage": "https://github.com/albemiglio/keyward",
+      "repository": "https://github.com/albemiglio/keyward",
       "license": "MIT",
       "category": "security",
       "keywords": ["security", "secrets", "api-keys", "hooks", "cross-platform"],

@@ -6,7 +6,7 @@
 
 ## Checklist
 
-- [ ] I have read the [contributing guidelines](https://github.com/AlbeMiglio/keyward/blob/main/CONTRIBUTING.md).
+- [ ] I have read the [contributing guidelines](https://github.com/albemiglio/keyward/blob/main/CONTRIBUTING.md).
 - [ ] The test suite passes locally (`python3 -m unittest discover -s tests -p 'test_*.py'`).
 - [ ] I added or updated a test for this change.
 - [ ] No new runtime dependencies were added (stdlib only).
