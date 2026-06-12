@@ -9,7 +9,7 @@ helping keep it and its users safe.
 
 Report privately via either:
 
-- **GitHub Security Advisories** — [Report a vulnerability](https://github.com/AlbeMiglio/keyward/security/advisories/new) (preferred), or
+- **GitHub Security Advisories** — [Report a vulnerability](https://github.com/albemiglio/keyward/security/advisories/new) (preferred), or
 - **Email** — albertomigliorato@gmail.com
 
 Please include:
@@ -39,5 +39,5 @@ Keyward is **defense-in-depth**, not a guarantee. Secrets are stored as plaintex
 not encrypted at rest. Depending on Claude Code's write ordering, the transcript
 may still capture a value in edge cases. For high-value production secrets, use a
 dedicated secret manager and reference it by path. See the
-[Security Model](https://github.com/AlbeMiglio/keyward/wiki/Security-Model) for the
+[Security Model](https://github.com/albemiglio/keyward/wiki/Security-Model) for the
 full threat model.

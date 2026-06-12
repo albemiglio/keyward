@@ -9,7 +9,7 @@ Keyward is not a replacement for a real secret manager. It's defense-in-depth fo
 In a Claude Code session:
 
 ```text
-/plugin marketplace add AlbeMiglio/keyward
+/plugin marketplace add albemiglio/keyward
 /plugin install keyward@keyward
 ```
 
@@ -62,4 +62,4 @@ The raw value never appears in the API call, the model context, or (best-effort 
 
 ---
 
-MIT licensed. Source: [github.com/AlbeMiglio/keyward](https://github.com/AlbeMiglio/keyward).
+MIT licensed. Source: [github.com/albemiglio/keyward](https://github.com/albemiglio/keyward).

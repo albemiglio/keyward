@@ -2,7 +2,7 @@
 # publish-wiki.sh — sync the versioned /wiki pages to the GitHub wiki.
 #
 # ONE-TIME PREREQUISITE (GitHub limitation — no API exists for this):
-#   Open  https://github.com/AlbeMiglio/keyward/wiki  →  "Create the first page"
+#   Open  https://github.com/albemiglio/keyward/wiki  →  "Create the first page"
 #   →  type anything  →  "Save page".  This initializes the wiki git repo.
 #
 # After that, run this from the repo root anytime you edit /wiki:
@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-WIKI_REMOTE="https://github.com/AlbeMiglio/keyward.wiki.git"
+WIKI_REMOTE="https://github.com/albemiglio/keyward.wiki.git"
 SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)/wiki"
 
 if [ ! -d "$SRC_DIR" ]; then
@@ -23,7 +23,7 @@ fi
 if ! git ls-remote "$WIKI_REMOTE" >/dev/null 2>&1; then
   echo "error: the wiki repo isn't initialized yet." >&2
   echo "       Create the first page once via the web UI, then re-run:" >&2
-  echo "       https://github.com/AlbeMiglio/keyward/wiki" >&2
+  echo "       https://github.com/albemiglio/keyward/wiki" >&2
   exit 1
 fi
 

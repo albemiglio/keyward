@@ -1,7 +1,7 @@
-[Issues]: https://github.com/AlbeMiglio/keyward/issues
-[Issue]: https://github.com/AlbeMiglio/keyward/issues
-[Discussions]: https://github.com/AlbeMiglio/keyward/discussions
-[wiki]: https://github.com/AlbeMiglio/keyward/wiki
+[Issues]: https://github.com/albemiglio/keyward/issues
+[Issue]: https://github.com/albemiglio/keyward/issues
+[Discussions]: https://github.com/albemiglio/keyward/discussions
+[wiki]: https://github.com/albemiglio/keyward/wiki
 
 # Contributing to Keyward
 
@@ -35,7 +35,7 @@ First, search existing [Issues] and [Discussions] — your question may already 
 answered. The [wiki] also covers installation, architecture, security model, and
 troubleshooting in depth.
 
-If you still need help, open a [Discussion](https://github.com/AlbeMiglio/keyward/discussions/new/choose)
+If you still need help, open a [Discussion](https://github.com/albemiglio/keyward/discussions/new/choose)
 and give as much context as you can (OS, terminal, what you ran, what happened).
 
 ## Reporting bugs

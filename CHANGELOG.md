@@ -66,5 +66,5 @@ Initial release.
   `virtual-keyboard-v1` (Sway/Hyprland yes; GNOME no by default).
 - macOS requires Accessibility permission for the terminal app.
 
-[Unreleased]: https://github.com/AlbeMiglio/keyward/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/AlbeMiglio/keyward/releases/tag/v0.1.0
+[Unreleased]: https://github.com/albemiglio/keyward/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/albemiglio/keyward/releases/tag/v0.1.0

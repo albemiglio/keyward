@@ -101,7 +101,7 @@ def main() -> int:
         p()
         p(f"{GREEN}{BOLD}The raw key never reached the model context or the transcript.{RESET}", pause=PAUSE * 1.5)
         p()
-        p(f"{GREY}gh:{RESET} github.com/AlbeMiglio/keyward", pause=0.3)
+        p(f"{GREY}gh:{RESET} github.com/albemiglio/keyward", pause=0.3)
     finally:
         shutil.rmtree(sandbox, ignore_errors=True)
     return 0

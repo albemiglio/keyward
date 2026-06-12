@@ -24,7 +24,7 @@
 
   <!-- footer handle -->
   <text x="98" y="582" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
-        font-size="22" font-weight="400" letter-spacing="0.3" fill="#9A9892">github.com/AlbeMiglio/keyward</text>
+        font-size="22" font-weight="400" letter-spacing="0.3" fill="#9A9892">github.com/albemiglio/keyward</text>
 
   <!-- Swiss vertical rule -->
   <rect x="812" y="150" width="6" height="340" fill="#E5484D"/>

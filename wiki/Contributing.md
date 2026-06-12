@@ -7,7 +7,7 @@ For the runtime design see [[Architecture]]; for detection internals see [[Detec
 ## Dev setup
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git
+git clone https://github.com/albemiglio/keyward.git
 cd keyward
 ```
 

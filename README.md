@@ -2,14 +2,14 @@
 
 <img src="assets/social-preview.png" alt="Keyward — secrets never reach the model" width="820">
 
-[![CI](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml)
+[![CI](https://github.com/albemiglio/keyward/actions/workflows/ci.yml/badge.svg)](https://github.com/albemiglio/keyward/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 [![Platforms: macOS · Linux · Windows](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-blue)](#installation)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](#requirements)
 
 **Auto-intercept API keys pasted into Claude Code chat.** Keyward saves the value to a `chmod 600` file *before the model sees it*, then re-submits a sanitized version of your message — automatically. Zero-friction secret hygiene.
 
-**[keyward website →](https://albemiglio.github.io/keyward/)** · [Docs / Wiki](https://github.com/AlbeMiglio/keyward/wiki) · [Compare alternatives](https://albemiglio.github.io/keyward/alternatives.html)
+**[keyward website →](https://albemiglio.github.io/keyward/)** · [Docs / Wiki](https://github.com/albemiglio/keyward/wiki) · [Compare alternatives](https://albemiglio.github.io/keyward/alternatives.html)
 
 </div>
 
@@ -180,7 +180,7 @@ or `***` (case-insensitive) is left alone. So discussing key formats like
 The fastest path. In a Claude Code session:
 
 ```text
-/plugin marketplace add AlbeMiglio/keyward
+/plugin marketplace add albemiglio/keyward
 /plugin install keyward@keyward
 ```
 
@@ -199,7 +199,7 @@ can run; on Linux install the per-platform tools listed in your section.
 **2. Clone the plugin:**
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
+git clone https://github.com/albemiglio/keyward.git ~/keyward
 ```
 
 (Or wherever you keep your plugins.)
@@ -311,7 +311,7 @@ PowerShell ships with Windows — no extra install needed.
 **2. Clone the plugin:**
 
 ```powershell
-git clone https://github.com/AlbeMiglio/keyward.git "$env:USERPROFILE\keyward"
+git clone https://github.com/albemiglio/keyward.git "$env:USERPROFILE\keyward"
 ```
 
 **3. Link / copy into the plugins directory:**
@@ -726,7 +726,7 @@ Issues and PRs welcome. Key areas where help is wanted:
 To develop:
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git
+git clone https://github.com/albemiglio/keyward.git
 cd keyward
 
 # Run the full test suite (35 tests, stdlib only — no pip install needed)

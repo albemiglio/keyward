@@ -57,7 +57,7 @@ Whichever method you use, the end state is the same: Claude Code finds the plugi
 The fastest path. In a Claude Code session:
 
 ```text
-/plugin marketplace add AlbeMiglio/keyward
+/plugin marketplace add albemiglio/keyward
 /plugin install keyward@keyward
 ```
 
@@ -88,7 +88,7 @@ The symlink approach (rather than copying) means a `git pull` in the clone updat
 **2. Clone the repo:**
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
+git clone https://github.com/albemiglio/keyward.git ~/keyward
 ```
 
 **3. Symlink into the plugin directory:**
@@ -139,7 +139,7 @@ sudo pacman -S python xdotool xclip
 **2. Clone the repo:**
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
+git clone https://github.com/albemiglio/keyward.git ~/keyward
 ```
 
 **3. Symlink into the plugin directory:**
@@ -186,7 +186,7 @@ sudo pacman -S python wtype wl-clipboard
 **2. Clone the repo:**
 
 ```bash
-git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
+git clone https://github.com/albemiglio/keyward.git ~/keyward
 ```
 
 **3. Symlink into the plugin directory:**
@@ -231,7 +231,7 @@ python3 --version
 **2. Clone the repo:**
 
 ```powershell
-git clone https://github.com/AlbeMiglio/keyward.git "$env:USERPROFILE\keyward"
+git clone https://github.com/albemiglio/keyward.git "$env:USERPROFILE\keyward"
 ```
 
 **3. Link or copy into the plugins directory:**
@@ -264,7 +264,7 @@ If you run Claude Code **inside WSL**, the hook executes inside the Linux VM, bu
 
 ```bash
 # inside WSL
-git clone https://github.com/AlbeMiglio/keyward.git ~/keyward
+git clone https://github.com/albemiglio/keyward.git ~/keyward
 mkdir -p ~/.claude/plugins
 ln -s ~/keyward ~/.claude/plugins/keyward
 ```

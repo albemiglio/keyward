@@ -21,4 +21,4 @@
 
 ---
 
-[Source on GitHub](https://github.com/AlbeMiglio/keyward)
+[Source on GitHub](https://github.com/albemiglio/keyward)

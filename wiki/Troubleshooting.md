@@ -371,4 +371,4 @@ python3 -m unittest discover -s ~/keyward/tests -p 'test_*.py' -v
 
 ---
 
-Still stuck? Open an issue at [github.com/AlbeMiglio/keyward/issues](https://github.com/AlbeMiglio/keyward/issues) with: your OS + (on Linux) `echo $XDG_SESSION_TYPE`, the output of the [standalone detect test](#testing-the-engine-standalone-from-the-cli), the relevant lines from `~/.claude/secrets/.last-error`, and whether the secret file _was_ created in `~/.claude/secrets/`. That distinguishes a detection problem from a paste problem immediately.
+Still stuck? Open an issue at [github.com/albemiglio/keyward/issues](https://github.com/albemiglio/keyward/issues) with: your OS + (on Linux) `echo $XDG_SESSION_TYPE`, the output of the [standalone detect test](#testing-the-engine-standalone-from-the-cli), the relevant lines from `~/.claude/secrets/.last-error`, and whether the secret file _was_ created in `~/.claude/secrets/`. That distinguishes a detection problem from a paste problem immediately.
