@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/AlbeMiglio/keyward/discussions/new/choose
+    about: Ask a question or start a discussion.
+  - name: Documentation (Wiki)
+    url: https://github.com/AlbeMiglio/keyward/wiki
+    about: Installation, architecture, security model, and troubleshooting.

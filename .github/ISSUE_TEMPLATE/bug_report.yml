@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a bug or unexpected behavior
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+        ⚠️ **Never paste a real secret** — use a fake key like `ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before submitting
+      options:
+        - label: I'm on the latest version (`claude plugin update keyward`).
+          required: true
+        - label: I checked `~/.claude/secrets/.last-error` for paste-automation errors.
+          required: false
+        - label: I searched existing issues for a duplicate.
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+      placeholder: What happened, and what did you expect to happen instead?
+    validations:
+      required: true
+  - type: input
+    id: trigger
+    attributes:
+      label: What triggered it
+      description: The prompt or key format that caused the bug (fake values only).
+      placeholder: "e.g. pasted `ghp_aaaa…`, or used `/key foo=bar`"
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux (X11)
+        - Linux (Wayland)
+        - Windows
+        - Windows + WSL
+    validations:
+      required: true
+  - type: input
+    id: terminal
+    attributes:
+      label: Terminal app
+      placeholder: "e.g. Terminal.app, iTerm, Ghostty, Warp, Windows Terminal"
+  - type: dropdown
+    id: paste
+    attributes:
+      label: Did the auto-paste work?
+      options:
+        - "Yes — it pasted and submitted automatically"
+        - "No — the secret was saved but I had to paste manually"
+        - "Not applicable / KEYWARD_DISABLE_PASTE=1"
+  - type: textarea
+    id: lasterror
+    attributes:
+      label: ~/.claude/secrets/.last-error (if any)
+      description: Paste the last line(s). It contains no secret values.
+      render: text
