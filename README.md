@@ -568,8 +568,11 @@ Should output: `{"secrets": [{"name": "github_pat_classic", "value": "ghp_...", 
 **Test the orchestrator without triggering paste**
 
 ```bash
-KEYWARD_DISABLE_PASTE=1 echo '{"user_prompt": "test ghp_aaaa..."}' \
-  | python3 ~/.claude/plugins/keyward/hooks/intercept.py
+# Note: the env var must be set on the python3 process, not on `echo` —
+# a here-string is the clean way to do that.
+KEYWARD_DISABLE_PASTE=1 \
+  python3 ~/.claude/plugins/keyward/hooks/intercept.py \
+  <<<'{"user_prompt": "test ghp_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}'
 ```
 
 **Where are the secrets stored?**
