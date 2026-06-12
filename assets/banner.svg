@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="Keyward — secrets never reach the model">
+  <title>Keyward</title>
+  <desc>Keyward: a Claude Code plugin that keeps API keys out of the prompt.</desc>
+
+  <!-- paper -->
+  <rect width="1280" height="640" fill="#F4F3EE"/>
+
+  <!-- top-left label + Swiss accent bar -->
+  <text x="98" y="150" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="22" font-weight="600" letter-spacing="5" fill="#6B6A65">CLAUDE CODE PLUGIN</text>
+  <rect x="100" y="172" width="62" height="7" fill="#E5484D"/>
+
+  <!-- wordmark -->
+  <text x="90" y="350" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="156" font-weight="700" letter-spacing="-6" fill="#16171D">Keyward</text>
+
+  <!-- tagline -->
+  <text x="98" y="424" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="40" font-weight="500" fill="#2A2B2F">Secrets never reach the model.</text>
+
+  <!-- mechanism -->
+  <text x="98" y="476" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="26" font-weight="400" fill="#6B6A65">intercept &#8594; redact &#8594; re-submit, automatically</text>
+
+  <!-- footer handle -->
+  <text x="98" y="582" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif"
+        font-size="22" font-weight="400" letter-spacing="0.3" fill="#9A9892">github.com/AlbeMiglio/keyward</text>
+
+  <!-- Swiss vertical rule -->
+  <rect x="812" y="150" width="6" height="340" fill="#E5484D"/>
+
+  <!-- the mark, large on the right -->
+  <g transform="translate(858,150) scale(3.4)">
+    <rect x="12" y="12" width="76" height="76" rx="19" fill="#16171D"/>
+    <circle cx="50" cy="37" r="12" fill="none" stroke="#F4F3EE" stroke-width="7"/>
+    <rect x="46.5" y="49" width="7" height="27" rx="1.5" fill="#F4F3EE"/>
+    <rect x="53.5" y="60" width="10" height="5.5" fill="#E5484D"/>
+    <rect x="53.5" y="69" width="7" height="5.5" fill="#E5484D"/>
+  </g>
+</svg>
