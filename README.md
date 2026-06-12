@@ -9,6 +9,8 @@
 
 **Auto-intercept API keys pasted into Claude Code chat.** Keyward saves the value to a `chmod 600` file *before the model sees it*, then re-submits a sanitized version of your message — automatically. Zero-friction secret hygiene.
 
+**[keyward website →](https://albemiglio.github.io/keyward/)** · [Docs / Wiki](https://github.com/AlbeMiglio/keyward/wiki) · [Compare alternatives](https://albemiglio.github.io/keyward/alternatives.html)
+
 </div>
 
 ![keyward demo](demo/keyward-demo.gif)
