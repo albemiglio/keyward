@@ -36,10 +36,10 @@
   "operatingSystem": "macOS, Linux, Windows",
   "description": "Open-source Claude Code plugin that intercepts API keys pasted into the chat before they reach the model, saves them to chmod-600 files, blocks the original prompt, and re-submits a sanitized version automatically.",
   "url": "https://albemiglio.github.io/keyward/",
-  "downloadUrl": "https://github.com/AlbeMiglio/keyward",
+  "downloadUrl": "https://github.com/albemiglio/keyward",
   "license": "https://opensource.org/licenses/MIT",
   "softwareVersion": "0.1.0",
-  "author": { "@type": "Person", "name": "Alberto Migliorato", "url": "https://github.com/AlbeMiglio" },
+  "author": { "@type": "Person", "name": "Alberto Migliorato", "url": "https://github.com/albemiglio" },
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "keywords": "Claude Code, API key, secrets, redaction, UserPromptSubmit hook, security"
 }
@@ -53,7 +53,7 @@
     {"@type":"Question","name":"Does the API key still get sent to Anthropic?","acceptedAnswer":{"@type":"Answer","text":"No. Keyward's UserPromptSubmit hook runs before the prompt is sent. It blocks the original message containing the raw key and re-submits a sanitized version, so the model and the API only ever see a placeholder reference."}},
     {"@type":"Question","name":"How does Keyward keep secrets out of Claude Code?","acceptedAnswer":{"@type":"Answer","text":"It scans every prompt you submit with regex for about twenty provider formats plus optional gitleaks. When it finds a key it saves the value to a chmod-600 file in ~/.claude/secrets/, blocks the prompt, and auto-pastes a sanitized version referencing the file instead of the value."}},
     {"@type":"Question","name":"Which platforms does Keyward support?","acceptedAnswer":{"@type":"Answer","text":"macOS, Linux (X11 and Wayland), and Windows. The sanitized re-paste is automated per platform via osascript, xdotool, wtype, or PowerShell SendKeys."}},
-    {"@type":"Question","name":"Is Keyward free and open source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Keyward is MIT-licensed, has no network calls or telemetry, and is available on GitHub at github.com/AlbeMiglio/keyward."}}
+    {"@type":"Question","name":"Is Keyward free and open source?","acceptedAnswer":{"@type":"Answer","text":"Yes. Keyward is MIT-licensed, has no network calls or telemetry, and is available on GitHub at github.com/albemiglio/keyward."}}
   ]
 }
 </script>
@@ -166,7 +166,7 @@
         <a href="#compare">Alternatives</a>
         <a href="#install">Install</a>
         <a href="#faq">FAQ</a>
-        <a href="https://github.com/AlbeMiglio/keyward">GitHub</a>
+        <a href="https://github.com/albemiglio/keyward">GitHub</a>
       </div>
     </nav>
   </div>
@@ -181,10 +181,10 @@
       <p class="lede">Paste a key into Claude Code and it's sent to the API <em>and</em> written to your session transcript. <strong>Keyward</strong> catches it first — saving the secret to a <code>chmod&nbsp;600</code> file, blocking the prompt, and re-submitting a sanitized version automatically.</p>
       <div class="cta">
         <a class="btn btn-primary" href="#install">Install Keyward</a>
-        <a class="btn btn-ghost" href="https://github.com/AlbeMiglio/keyward">View on GitHub →</a>
+        <a class="btn btn-ghost" href="https://github.com/albemiglio/keyward">View on GitHub →</a>
       </div>
       <div class="install" aria-label="Install commands">
-        <span class="c"><span class="p">›</span> /plugin marketplace add AlbeMiglio/keyward</span>
+        <span class="c"><span class="p">›</span> /plugin marketplace add albemiglio/keyward</span>
         <span class="c"><span class="p">›</span> /plugin install keyward@keyward</span>
       </div>
     </section>
@@ -246,7 +246,7 @@
           </ul>
         </div>
       </div>
-      <p class="sub" style="margin-top:22px;font-size:15px;color:var(--grey)">A full side-by-side comparison lives in the <a href="https://github.com/AlbeMiglio/keyward/wiki" style="color:var(--ink)">project wiki</a>. Keyward is defense-in-depth, not a replacement for a real secret manager — see the honest security model.</p>
+      <p class="sub" style="margin-top:22px;font-size:15px;color:var(--grey)">A full side-by-side comparison lives in the <a href="https://github.com/albemiglio/keyward/wiki" style="color:var(--ink)">project wiki</a>. Keyward is defense-in-depth, not a replacement for a real secret manager — see the honest security model.</p>
     </div>
   </section>
 
@@ -257,10 +257,10 @@
       <h2>Two lines, then restart.</h2>
       <p class="sub">In a Claude Code session:</p>
       <div class="install" style="margin-top:22px">
-        <span class="c"><span class="p">›</span> /plugin marketplace add AlbeMiglio/keyward</span>
+        <span class="c"><span class="p">›</span> /plugin marketplace add albemiglio/keyward</span>
         <span class="c"><span class="p">›</span> /plugin install keyward<span class="g">@keyward</span></span>
       </div>
-      <p class="sub" style="margin-top:20px;font-size:15px;color:var(--grey)">On macOS, grant your terminal Accessibility permission so the auto-paste can run. On Linux install <code>xdotool</code>/<code>wtype</code> for your display server. Prefer reading the code first? Clone &amp; symlink — <a href="https://github.com/AlbeMiglio/keyward#install" style="color:var(--ink)">full per-platform guide</a>.</p>
+      <p class="sub" style="margin-top:20px;font-size:15px;color:var(--grey)">On macOS, grant your terminal Accessibility permission so the auto-paste can run. On Linux install <code>xdotool</code>/<code>wtype</code> for your display server. Prefer reading the code first? Clone &amp; symlink — <a href="https://github.com/albemiglio/keyward#install" style="color:var(--ink)">full per-platform guide</a>.</p>
     </div>
   </section>
 
@@ -282,12 +282,12 @@
   <div class="wrap foot">
     <div>
       <strong style="color:var(--ink)">Keyward</strong> — secrets stay out of the prompt.<br>
-      MIT licensed · built by <a href="https://github.com/AlbeMiglio">Alberto Migliorato</a>
+      MIT licensed · built by <a href="https://github.com/albemiglio">Alberto Migliorato</a>
     </div>
     <div style="display:flex;gap:22px;flex-wrap:wrap">
-      <a href="https://github.com/AlbeMiglio/keyward">GitHub</a>
-      <a href="https://github.com/AlbeMiglio/keyward/wiki">Docs / Wiki</a>
-      <a href="https://github.com/AlbeMiglio/keyward/releases">Releases</a>
+      <a href="https://github.com/albemiglio/keyward">GitHub</a>
+      <a href="https://github.com/albemiglio/keyward/wiki">Docs / Wiki</a>
+      <a href="https://github.com/albemiglio/keyward/releases">Releases</a>
       <a href="llms.txt">llms.txt</a>
     </div>
   </div>
