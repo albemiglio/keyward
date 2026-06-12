@@ -1,13 +1,15 @@
-# Keyward
+<div align="center">
 
-> **Auto-intercept API keys pasted into Claude Code chat.** Saves the value to
-> a `chmod 600` file before the model sees it, then re-submits a sanitized
-> version of your message automatically. Zero-friction secret hygiene.
+<img src="assets/social-preview.png" alt="Keyward — secrets never reach the model" width="820">
 
 [![CI](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml/badge.svg)](https://github.com/AlbeMiglio/keyward/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 [![Platforms: macOS · Linux · Windows](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-blue)](#installation)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](#requirements)
+
+**Auto-intercept API keys pasted into Claude Code chat.** Keyward saves the value to a `chmod 600` file *before the model sees it*, then re-submits a sanitized version of your message — automatically. Zero-friction secret hygiene.
+
+</div>
 
 ![keyward demo](demo/keyward-demo.gif)
 
@@ -21,10 +23,12 @@
 
 - [The problem](#the-problem)
 - [What this plugin does](#what-this-plugin-does)
+- [Why Keyward (vs the alternatives)](#why-keyward-vs-the-alternatives)
 - [Live example](#live-example)
 - [Detected key formats](#detected-key-formats)
 - [Requirements](#requirements)
-- [Installation](#installation)
+- [Install](#install)
+  - [Quick start — marketplace](#quick-start--marketplace)
   - [macOS](#installation--macos)
   - [Linux (X11)](#installation--linux-x11)
   - [Linux (Wayland)](#installation--linux-wayland)
@@ -38,6 +42,7 @@
 - [Troubleshooting](#troubleshooting)
 - [Configuration](#configuration)
 - [Security model](#security-model)
+- [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -75,6 +80,24 @@ A `UserPromptSubmit` hook scans every message you submit:
 The re-submission uses OS-level keystroke automation (osascript / xdotool /
 wtype / PowerShell SendKeys), so from your perspective you just press Enter
 once and Claude responds to the cleaned-up version.
+
+## Why Keyward (vs the alternatives)
+
+You already have ways to handle secrets. Here's where each one leaves a gap that
+Keyward fills:
+
+| Approach | The gap |
+|---|---|
+| **Just rotate the key after pasting** | Works, but it's friction every single time, and you have to *remember*. Keyward makes the paste safe so there's nothing to rotate. |
+| **Be careful never to paste keys** | Discipline fails under deadline. Keyward is a safety net that doesn't depend on you remembering. |
+| **`1Password` / `Vault` / Keychain + reference by name** | Great for *stored* secrets you reference deliberately. Useless for the key a colleague just DM'd you that you want to use *right now* without a vault round-trip. Keyward catches the ad-hoc paste. |
+| **`.env` file + `direnv`** | Good for project config. But you still had to get the key *into* `.env` without pasting it in chat — Keyward is how it gets there safely. |
+| **Claude Code's built-in "key leaked, rotate it" warning** | Reactive: it tells you *after* the value already hit the API and the transcript. Keyward is proactive: the value never gets there. |
+| **A `PreToolUse` hook / output filter** | Scrubs *Claude's* tool calls, not *your* prompt. The leak happens at prompt submission, upstream of any tool. Keyward hooks `UserPromptSubmit`, the only point early enough. |
+
+Keyward isn't a replacement for a real secret manager — it's the missing piece
+for the **"I just need to use this key once, in chat, now"** workflow, where a
+vault is too heavy and rotation is too annoying.
 
 ## Live example
 
@@ -148,7 +171,23 @@ or `***` (case-insensitive) is left alone. So discussing key formats like
 - **Claude Code** with plugin support
 - **Per-platform automation tools** (see [Installation](#installation))
 
-## Installation
+## Install
+
+### Quick start — marketplace
+
+The fastest path. In a Claude Code session:
+
+```text
+/plugin marketplace add AlbeMiglio/keyward
+/plugin install keyward@keyward
+```
+
+Then restart Claude Code. On macOS, also grant Accessibility permission to your
+terminal (see the [macOS](#installation--macos) notes below) so the auto-paste
+can run; on Linux install the per-platform tools listed in your section.
+
+> Prefer to read the code before trusting it with your prompts? Use the manual
+> clone-and-link method for your platform below — it's identical, just explicit.
 
 ### Installation — macOS
 
@@ -615,6 +654,59 @@ For high-stakes secrets, use a proper secret manager (`1Password CLI`,
 macOS Keychain via `security`, HashiCorp Vault, etc.) and reference them by
 name. This plugin is for the daily "I just need to use this key once, don't
 want to rotate it after pasting" workflow.
+
+## FAQ
+
+**Does the key still get sent to Anthropic?**
+No — that's the entire point. The `UserPromptSubmit` hook fires *before* the
+prompt is sent. Keyward blocks the original prompt (the one containing the raw
+value) and re-submits a sanitized one. The model and the API only ever see the
+`<<secret:NAME ...>>` reference.
+
+**What if I forget and the hook misses my key?**
+Two layers reduce this: the ~20-provider regex catches common formats with no
+marker, and you can force-tag anything with `/key NAME=VALUE`. For maximum
+coverage, enable the [optional gitleaks pass](#optional-deeper-detection-with-gitleaks).
+If a value genuinely slips through (custom format, gitleaks off), treat it like
+any leak and rotate — Keyward is defense-in-depth, not a guarantee.
+
+**Will it trigger when I'm just *talking* about keys?**
+Values containing `EXAMPLE`, `PLACEHOLDER`, `XXX`, `FAKE`, `DUMMY`, etc. are
+ignored. For anything else, prefix the message with `/raw ` to bypass detection
+for that one prompt.
+
+**Does Claude ever see the real value when it *uses* the key?**
+No. The bundled `using-keyward` skill teaches Claude to expand the secret inline
+in a single shell command — `export VAR=$(cat ~/.claude/secrets/x.txt) && cmd`
+— so the value flows disk → process env → tool, never through stdout or the
+model's context.
+
+**Is my key encrypted at rest?**
+No. It's stored as a `chmod 600` plaintext file under `~/.claude/secrets/`,
+readable only by your user. This is the same trust model as `~/.aws/credentials`
+or a `.env` file. If you need encryption at rest, use a real secret manager and
+reference it by path — Keyward deliberately doesn't reinvent one.
+
+**Why does the prompt flash red / get cancelled?**
+That's the `block` decision doing its job: the original prompt (with the raw
+value) is rejected, and the sanitized version is pasted and submitted in its
+place. You see a brief cancelled message, then the clean one.
+
+**It saved the key but didn't auto-paste. Why?**
+The save always succeeds; the *paste* needs OS automation. On macOS that means
+Accessibility permission for your terminal; on Wayland it's compositor-dependent.
+Check `~/.claude/secrets/.last-error`. The sanitized text is on your clipboard —
+just `Cmd/Ctrl+V` + Enter. Or set `KEYWARD_DISABLE_PASTE=1` to always paste
+manually.
+
+**Does this work in SSH / headless / Docker?**
+Detection and saving do. Auto-paste needs a display server, so set
+`KEYWARD_DISABLE_PASTE=1` and paste manually in those environments.
+
+**Can I use it with other AI CLIs (Cursor, Codex, Gemini)?**
+Not yet — Keyward relies on Claude Code's `UserPromptSubmit` hook, which those
+tools don't currently expose. See the project notes for why an OS-level
+text-expander is the only cross-tool option today.
 
 ## Contributing
 

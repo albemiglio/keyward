@@ -1,0 +1,27 @@
+{
+  "name": "keyward",
+  "owner": {
+    "name": "Alberto Migliorato"
+  },
+  "metadata": {
+    "description": "Keyward — keep API keys out of your Claude Code prompts.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "keyward",
+      "source": "./",
+      "description": "Auto-intercept API keys pasted into chat: save to chmod-600 files, block the original prompt, and re-submit a sanitized version. Cross-platform (macOS/Linux/Windows).",
+      "version": "0.1.0",
+      "author": {
+        "name": "Alberto Migliorato"
+      },
+      "homepage": "https://github.com/AlbeMiglio/keyward",
+      "repository": "https://github.com/AlbeMiglio/keyward",
+      "license": "MIT",
+      "category": "security",
+      "keywords": ["security", "secrets", "api-keys", "hooks", "cross-platform"],
+      "tags": ["security", "secrets", "api-keys", "redaction", "hooks"]
+    }
+  ]
+}
