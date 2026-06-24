@@ -183,6 +183,104 @@ class TestDetect(unittest.TestCase):
         os.environ.pop("KEYWARD_USE_GITLEAKS", None)
         self.assertFalse(detect.gitleaks_enabled())
 
+    # ------------------------------------------------------------------
+    # Context-anchored detection (Part A)
+    # ------------------------------------------------------------------
+
+    def test_context_mistral_api_key(self):
+        # A real-looking key with a key-ish name should be detected as context
+        self.assert_single(
+            "MISTRAL_API_KEY=KnIjerNTEj215TdLLHuOofGeZQZYwV8c",
+            "MISTRAL_API_KEY",
+            "KnIjerNTEj215TdLLHuOofGeZQZYwV8c",
+            "context",
+        )
+
+    def test_context_monkey_not_detected(self):
+        # "monkey" contains "key" as a substring but not as a word component
+        result = detect.detect("monkey=Garfield123x")
+        self.assertEqual(result["secrets"], [])
+
+    def test_context_short_value_ignored(self):
+        # Value shorter than 8 chars must not be flagged
+        result = detect.detect("API_KEY=test")
+        self.assertEqual(result["secrets"], [])
+
+    def test_context_no_double_with_explicit_default(self):
+        # KEY=value is already caught by explicit_default; context must not re-claim it
+        result = detect.detect("KEY=AbCd1234Efgh5678")
+        sources = [s["source"] for s in result["secrets"]]
+        # explicit_default fires first and claims the span; context must NOT also fire
+        self.assertNotIn("context", sources)
+        self.assertIn("explicit_default", sources)
+
+    def test_context_token_name(self):
+        # "token" in the name should also match
+        result = detect.detect("GITHUB_TOKEN=ghtoken1234567890AB")
+        context_hits = [s for s in result["secrets"] if s["source"] == "context"]
+        # should be caught (either context or regex; at minimum not zero)
+        self.assertGreaterEqual(len(result["secrets"]), 1)
+        # value span points at the right text
+        for s in result["secrets"]:
+            a, b = s["span"]
+            self.assertEqual("GITHUB_TOKEN=ghtoken1234567890AB"[a:b], s["value"])
+
+    def test_context_letters_only_value_ignored(self):
+        # A value with only letters lacks enough entropy/charset variety
+        result = detect.detect("API_KEY=onlyletters")
+        self.assertEqual(result["secrets"], [])
+
+    def test_context_digits_only_value_ignored(self):
+        # A value with only digits is not plausibly a secret token
+        result = detect.detect("API_KEY=12345678901234")
+        self.assertEqual(result["secrets"], [])
+
+    # ------------------------------------------------------------------
+    # Shannon entropy + is_random_token primitives (Part C)
+    # ------------------------------------------------------------------
+
+    def test_shannon_entropy_monochar(self):
+        # Single repeated character has entropy ≈ 0
+        self.assertAlmostEqual(detect.shannon_entropy("aaaaaaaaaa"), 0.0, places=5)
+
+    def test_shannon_entropy_high(self):
+        # A diverse base62 string should have entropy > 4.0
+        self.assertGreater(detect.shannon_entropy("aB3cD4eF5gH6iJ7kL8mN9"), 4.0)
+
+    def test_is_random_token_true_base62(self):
+        # A 32-char base62 token that is not a UUID/hex hash
+        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3"
+        self.assertTrue(detect.is_random_token(token))
+
+    def test_is_random_token_false_uuid(self):
+        # UUID must be excluded
+        uuid = "550e8400-e29b-41d4-a716-446655440000"
+        self.assertFalse(detect.is_random_token(uuid))
+
+    def test_is_random_token_false_md5(self):
+        # Pure 32-hex is an MD5, not a random token
+        md5 = "d41d8cd98f00b204e9800998ecf8427e"
+        self.assertFalse(detect.is_random_token(md5))
+
+    def test_entropy_layer_off_by_default(self):
+        # Without KEYWARD_ENTROPY=1, a standalone random token must not be flagged
+        os.environ.pop("KEYWARD_ENTROPY", None)
+        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3xYz"
+        result = detect.detect(token)
+        sources = {s["source"] for s in result["secrets"]}
+        self.assertNotIn("entropy", sources)
+
+    def test_entropy_layer_on_catches_random_token(self):
+        # With KEYWARD_ENTROPY=1, a standalone random base62 token should be caught
+        os.environ["KEYWARD_ENTROPY"] = "1"
+        try:
+            token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3xYzWvU"
+            result = detect.detect(f"my api key is {token}")
+            sources = {s["source"] for s in result["secrets"]}
+            self.assertIn("entropy", sources)
+        finally:
+            os.environ.pop("KEYWARD_ENTROPY", None)
+
 
 # ---------------------------------------------------------------------------
 # intercept.py — full hook behavior (subprocess, sandboxed HOME/TMP)
