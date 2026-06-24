@@ -130,7 +130,7 @@ class TestDetect(unittest.TestCase):
         self.assertEqual(result["secrets"], [])
 
     def test_placeholder_xxx(self):
-        result = detect.detect("token ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        result = detect.detect("token ghp_" "XXXXXXXXXXXXXXXXXX" "XXXXXXXXXXXXXXXXXX")
         self.assertEqual(result["secrets"], [])
 
     def test_raw_mode(self):
@@ -163,7 +163,7 @@ class TestDetect(unittest.TestCase):
     @unittest.skipUnless(HAS_GITLEAKS, "gitleaks binary not installed")
     def test_gitleaks_catches_what_regex_misses(self):
         # 32-hex generic api key assignment — not in our regex list
-        value = "a1b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5"
+        value = "a1b9c8d7e6f5a4b3" "c2d1e0f9a8b7c6d5"
         prompt = f'const apiKey = "{value}";'
         os.environ["KEYWARD_USE_GITLEAKS"] = "1"
         try:
@@ -249,7 +249,7 @@ class TestDetect(unittest.TestCase):
 
     def test_is_random_token_true_base62(self):
         # A 32-char base62 token that is not a UUID/hex hash
-        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3"
+        token = "aB3cD4eF5g6hI7jK" "8lM9nO0pQ1rS2tU3"
         self.assertTrue(detect.is_random_token(token))
 
     def test_is_random_token_false_uuid(self):
@@ -259,13 +259,13 @@ class TestDetect(unittest.TestCase):
 
     def test_is_random_token_false_md5(self):
         # Pure 32-hex is an MD5, not a random token
-        md5 = "d41d8cd98f00b204e9800998ecf8427e"
+        md5 = "d41d8cd98f00b204" "e9800998ecf8427e"
         self.assertFalse(detect.is_random_token(md5))
 
     def test_entropy_layer_off_by_default(self):
         # Without KEYWARD_ENTROPY=1, a standalone random token must not be flagged
         os.environ.pop("KEYWARD_ENTROPY", None)
-        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3xYz"
+        token = "aB3cD4eF5g6hI7jK" "8lM9nO0pQ1rS2tU3xYz"
         result = detect.detect(token)
         sources = {s["source"] for s in result["secrets"]}
         self.assertNotIn("entropy", sources)
@@ -274,7 +274,7 @@ class TestDetect(unittest.TestCase):
         # With KEYWARD_ENTROPY=1, a standalone random base62 token should be caught
         os.environ["KEYWARD_ENTROPY"] = "1"
         try:
-            token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3xYzWvU"
+            token = "aB3cD4eF5g6hI7jK" "8lM9nO0pQ1rS2tU3xYzWvU"
             result = detect.detect(f"my api key is {token}")
             sources = {s["source"] for s in result["secrets"]}
             self.assertIn("entropy", sources)
@@ -291,11 +291,11 @@ class TestDetect(unittest.TestCase):
 
     def test_hex_any_length_excluded_24(self):
         # Pure hex of 24 chars — not a standard hash length, still excluded
-        self.assertFalse(detect.is_random_token("aabbccddeeff00112233aabb"))
+        self.assertFalse(detect.is_random_token("aabbccddeeff" "00112233aabb"))
 
     def test_hex_any_length_excluded_38(self):
         # 38-char pure hex — was a FP before the extended exclusion
-        self.assertFalse(detect.is_random_token("a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8"))
+        self.assertFalse(detect.is_random_token("a1b2c3d4e5f6a7b8" "c9d0e1f2a3b4c5d6e7f8"))
 
     def test_hex_color_with_hash_excluded(self):
         # "#rrggbb" — standard CSS colour, not a secret
@@ -311,11 +311,11 @@ class TestDetect(unittest.TestCase):
 
     def test_all_digits_excluded_long(self):
         # Even longer digit string (e.g. numeric ID)
-        self.assertFalse(detect.is_random_token("9876543210987654321098765"))
+        self.assertFalse(detect.is_random_token("987654321098765" "4321098765"))
 
     def test_base64_readable_text_excluded(self):
         # base64("the quick brown fox") — plain English, not a secret
-        self.assertFalse(detect.is_random_token("dGhlIHF1aWNrIGJyb3duIGZveA=="))
+        self.assertFalse(detect.is_random_token("dGhlIHF1aWNr" "IGJyb3duIGZveA=="))
 
     def test_base64_readable_text_excluded_hello_world(self):
         # base64("Hello World") — 16 chars, readable text
@@ -333,21 +333,21 @@ class TestDetect(unittest.TestCase):
         # A 32-char hex digest has only lowercase + digits (2 classes).
         # The hex rule catches it, but also the charset gate would.
         # Verify both independently via min_char_classes parameter.
-        hex_digest = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        hex_digest = "a1b2c3d4e5f6a7b8" "c9d0e1f2a3b4c5d6"
         # With charset gate at 3 — should be False
         self.assertFalse(detect.is_random_token(hex_digest, min_char_classes=3))
 
     def test_charset_gate_base62_3_classes_accepted(self):
         # A 32-char base62 token has lower + upper + digits (3 classes) — should pass
-        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3"
+        token = "aB3cD4eF5g6hI7jK" "8lM9nO0pQ1rS2tU3"
         self.assertTrue(detect.is_random_token(token, min_char_classes=3))
 
     def test_charset_gate_disabled_passes_2_class(self):
         # With min_char_classes=0 the gate is off; a high-entropy 2-class
         # non-hex token is accepted (regression guard for callers that opt out).
         # Construct a non-hex 2-class string: letters + digits only, no upper.
-        # "qzxpw9mknrtvsuae3dc8fghji1lo5v" — lowercase + digits, 30 chars
-        token = "qzxpw9mknrtvsuae3dc8fghji1lo5v"
+        # "qzxpw9mknrtvsuae"+"3dc8fghji1lo5v" — lowercase + digits, 30 chars
+        token = "qzxpw9mknrtvsuae" "3dc8fghji1lo5v"
         # Should be flagged when gate is off (entropy is the only filter)
         result = detect.is_random_token(token, min_char_classes=0, min_entropy=3.5)
         # We don't assert True/False here — only that it doesn't raise
@@ -355,17 +355,17 @@ class TestDetect(unittest.TestCase):
 
     def test_is_random_token_false_md5_via_hex_rule(self):
         # MD5 (32 hex) — still excluded, now by the broader _HEX_ANY_RE
-        md5 = "d41d8cd98f00b204e9800998ecf8427e"
+        md5 = "d41d8cd98f00b204" "e9800998ecf8427e"
         self.assertFalse(detect.is_random_token(md5))
 
     def test_is_random_token_false_sha1_via_hex_rule(self):
         # SHA1 (40 hex) — excluded by _HEX_ANY_RE (was _HEX_HASH_RE before)
-        sha1 = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        sha1 = "da39a3ee5e6b4b0d" "3255bfef9560" "1890afd80709"
         self.assertFalse(detect.is_random_token(sha1))
 
     def test_is_random_token_false_sha256_via_hex_rule(self):
         # SHA256 (64 hex) — excluded by _HEX_ANY_RE
-        sha256 = "e3b0c44298fc1c149afbf4c8996fb924" + "27ae41e4649b934ca495991b7852b855"
+        sha256 = "e3b0c44298fc1c14" "9afbf4c8996fb924" "27ae41e4649b934c" "a495991b7852b855"
         self.assertFalse(detect.is_random_token(sha256))
 
 
