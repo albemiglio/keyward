@@ -256,6 +256,8 @@ def is_random_token(
         return False
     if _ALL_DIGITS_RE.match(s):
         return False
+    if any(c in s for c in "/\\:@"):  # URL / path / email — never a bare API key
+        return False
     if _is_base64_readable_text(s):
         return False
     if min_char_classes > 0 and _count_char_classes(s) < min_char_classes:
@@ -455,6 +457,7 @@ def detect(prompt: str) -> dict:
     # 7. Entropy-based detection (OPT-IN via KEYWARD_ENTROPY=1).
     # Flags any high-entropy standalone token not excluded as UUID/hash/placeholder.
     if os.environ.get("KEYWARD_ENTROPY") == "1":
+        n_entropy = 0
         for m in re.finditer(r"\S+", prompt):
             token = m.group(0)
             if not is_random_token(token):
@@ -463,8 +466,9 @@ def detect(prompt: str) -> dict:
             if overlaps(start, end):
                 continue
             claimed_spans.append((start, end))
+            n_entropy += 1
             found.append({
-                "name": "entropy",
+                "name": f"entropy_{n_entropy}",  # unique per hit — don't clobber one slot
                 "value": token,
                 "span": [start, end],
                 "source": "entropy",
