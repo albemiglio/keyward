@@ -25,6 +25,7 @@
 
 - [The problem](#the-problem)
 - [What this plugin does](#what-this-plugin-does)
+- [Supported agents](#supported-agents)
 - [Why Keyward (vs the alternatives)](#why-keyward-vs-the-alternatives)
 - [Live example](#live-example)
 - [Detected key formats](#detected-key-formats)
@@ -82,6 +83,23 @@ A `UserPromptSubmit` hook scans every message you submit:
 The re-submission uses OS-level keystroke automation (osascript / xdotool /
 wtype / PowerShell SendKeys), so from your perspective you just press Enter
 once and Claude responds to the cleaned-up version.
+
+## Supported agents
+
+The detection engine (`scripts/detect.py`) is host-agnostic, so agents beyond
+Claude Code are supported via thin adapters in `adapters/<agent>/`. What differs
+per agent is what its prompt hook is *allowed* to do:
+
+| Agent | Hook | Coverage | Behavior on a detected secret |
+|---|---|---|---|
+| **Claude Code** | `UserPromptSubmit` | ✅ Transparent | detect → save → block → **re-submit a sanitized prompt** (you keep going) |
+| **Codex CLI** | `UserPromptSubmit` | ✅ Block-only | detect → save → **block**; you re-send referencing the saved path (hook can't rewrite) |
+| **Gemini CLI** | `BeforeAgent` | ✅ Block-only | detect → save → **deny**; you re-send referencing the saved path (hook can't rewrite) |
+| **GitHub Copilot CLI** | `userPromptSubmitted` | ❌ Not supported | its prompt hook is *notification-only* — can observe but not block/rewrite, so it can't stop the leak |
+
+"Block-only" is still fail-safe: the raw secret is saved and never reaches the
+model — you just re-send the cleaned prompt yourself instead of it being
+auto-rewritten. Per-agent setup: see `adapters/<agent>/README.md`.
 
 ## Why Keyward (vs the alternatives)
 
