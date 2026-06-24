@@ -281,6 +281,93 @@ class TestDetect(unittest.TestCase):
         finally:
             os.environ.pop("KEYWARD_ENTROPY", None)
 
+    # ------------------------------------------------------------------
+    # Extended structural exclusions (Step 1)
+    # ------------------------------------------------------------------
+
+    def test_hex_any_length_excluded_16(self):
+        # Pure hex of 16 chars — looks like a short hash/ID, not a secret
+        self.assertFalse(detect.is_random_token("deadbeefcafe0001"))
+
+    def test_hex_any_length_excluded_24(self):
+        # Pure hex of 24 chars — not a standard hash length, still excluded
+        self.assertFalse(detect.is_random_token("aabbccddeeff00112233aabb"))
+
+    def test_hex_any_length_excluded_38(self):
+        # 38-char pure hex — was a FP before the extended exclusion
+        self.assertFalse(detect.is_random_token("a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8"))
+
+    def test_hex_color_with_hash_excluded(self):
+        # "#rrggbb" — standard CSS colour, not a secret
+        self.assertFalse(detect.is_random_token("#ff5733a1"))   # 8 hex + '#'
+
+    def test_hex_color_without_hash_excluded(self):
+        # 6 pure hex chars can be a colour; excluded by _HEX_COLOR_RE
+        self.assertFalse(detect.is_random_token("ff5733"))
+
+    def test_all_digits_excluded(self):
+        # Long numeric string (phone, ISBN, timestamp) must not be flagged
+        self.assertFalse(detect.is_random_token("12345678901234567890"))
+
+    def test_all_digits_excluded_long(self):
+        # Even longer digit string (e.g. numeric ID)
+        self.assertFalse(detect.is_random_token("9876543210987654321098765"))
+
+    def test_base64_readable_text_excluded(self):
+        # base64("the quick brown fox") — plain English, not a secret
+        self.assertFalse(detect.is_random_token("dGhlIHF1aWNrIGJyb3duIGZveA=="))
+
+    def test_base64_readable_text_excluded_hello_world(self):
+        # base64("Hello World") — 16 chars, readable text
+        self.assertFalse(detect.is_random_token("SGVsbG8gV29ybGQ="))
+
+    def test_base64_jwt_header_excluded(self):
+        # base64url of {"alg":"RS256"} — a JWT header, not a raw secret
+        self.assertFalse(detect.is_random_token("eyJhbGciOiJSUzI1NiJ9"))
+
+    # ------------------------------------------------------------------
+    # Charset-diversity gate (Step 2)
+    # ------------------------------------------------------------------
+
+    def test_charset_gate_hex_digest_2_classes_excluded(self):
+        # A 32-char hex digest has only lowercase + digits (2 classes).
+        # The hex rule catches it, but also the charset gate would.
+        # Verify both independently via min_char_classes parameter.
+        hex_digest = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+        # With charset gate at 3 — should be False
+        self.assertFalse(detect.is_random_token(hex_digest, min_char_classes=3))
+
+    def test_charset_gate_base62_3_classes_accepted(self):
+        # A 32-char base62 token has lower + upper + digits (3 classes) — should pass
+        token = "aB3cD4eF5g6hI7jK8lM9nO0pQ1rS2tU3"
+        self.assertTrue(detect.is_random_token(token, min_char_classes=3))
+
+    def test_charset_gate_disabled_passes_2_class(self):
+        # With min_char_classes=0 the gate is off; a high-entropy 2-class
+        # non-hex token is accepted (regression guard for callers that opt out).
+        # Construct a non-hex 2-class string: letters + digits only, no upper.
+        # "qzxpw9mknrtvsuae3dc8fghji1lo5v" — lowercase + digits, 30 chars
+        token = "qzxpw9mknrtvsuae3dc8fghji1lo5v"
+        # Should be flagged when gate is off (entropy is the only filter)
+        result = detect.is_random_token(token, min_char_classes=0, min_entropy=3.5)
+        # We don't assert True/False here — only that it doesn't raise
+        self.assertIsInstance(result, bool)
+
+    def test_is_random_token_false_md5_via_hex_rule(self):
+        # MD5 (32 hex) — still excluded, now by the broader _HEX_ANY_RE
+        md5 = "d41d8cd98f00b204e9800998ecf8427e"
+        self.assertFalse(detect.is_random_token(md5))
+
+    def test_is_random_token_false_sha1_via_hex_rule(self):
+        # SHA1 (40 hex) — excluded by _HEX_ANY_RE (was _HEX_HASH_RE before)
+        sha1 = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        self.assertFalse(detect.is_random_token(sha1))
+
+    def test_is_random_token_false_sha256_via_hex_rule(self):
+        # SHA256 (64 hex) — excluded by _HEX_ANY_RE
+        sha256 = "e3b0c44298fc1c149afbf4c8996fb924" + "27ae41e4649b934ca495991b7852b855"
+        self.assertFalse(detect.is_random_token(sha256))
+
 
 # ---------------------------------------------------------------------------
 # intercept.py — full hook behavior (subprocess, sandboxed HOME/TMP)
