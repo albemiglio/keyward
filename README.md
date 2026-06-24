@@ -590,7 +590,8 @@ All config is via environment variables:
 | Variable | Effect |
 |---|---|
 | `KEYWARD_DISABLE_PASTE=1` | Skip the auto-paste spawn entirely. Hook still saves + sanitizes, you paste manually. Useful for SSH, WSL, or unsupported Wayland compositors. |
-| `KEYWARD_USE_GITLEAKS=1` | Enable the optional gitleaks detection pass (see below). Requires the `gitleaks` binary in `PATH`. Off by default. |
+| `KEYWARD_USE_GITLEAKS=1` | Enable the optional gitleaks detection pass (see below). Requires the `gitleaks` binary in `PATH`. Adds ~50–150 ms per prompt. Off by default. |
+| `KEYWARD_ENTROPY=1` | Enable the opt-in entropy-based detector. Flags any high-entropy standalone token (≥ 20 chars, entropy ≥ 4.0 bits) not excluded as a UUID, MD5/SHA1/SHA256 hash, or placeholder. Can be noisy — use `/raw` to bypass false positives. Off by default. |
 | `TMPDIR` / `TEMP` / `TMP` | Override where sanitized tempfiles are written (default: the OS temp dir + `/keyward`). Honored cross-platform via Python's `tempfile.gettempdir()`. |
 | `CLAUDE_PLUGIN_ROOT` | Set by Claude Code automatically. Falls back to script's parent dir if unset (manual invocation). |
 
@@ -625,6 +626,16 @@ filter still applies (example/dummy values are ignored).
 is why it's off by default. gitleaks' `generic-api-key` rule can also be noisy
 on high-entropy strings — use `/raw` to bypass a false positive. The regex-only
 default stays fast and conservative.
+
+#### How the gitleaks pass fits into the detection stack
+
+Keyward runs detectors in priority order: explicit markers → regex → context-anchored → gitleaks. Each layer only claims spans not already owned by a prior one, so there is no double-counting. gitleaks is especially useful for:
+
+- **Prefix-less random tokens** (custom internal APIs, short-lived JWTs without the `eyJ` prefix, hardware serial keys)
+- **PEM private key blocks** (`-----BEGIN RSA PRIVATE KEY-----`)
+- **Dozens of additional providers** in gitleaks' maintained ruleset
+
+If gitleaks fires on a string that is not a real secret (a high-entropy config value, a base64-encoded blob, etc.), prefix the prompt with `/raw ` to bypass detection for that one message.
 
 ## Security model
 

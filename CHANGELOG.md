@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Context-anchored detection** (`source: context`, ON by default): detects
+  `NAME=VALUE` assignments where the name contains a key-ish word component
+  (`key`, `token`, `secret`, `password`, `passwd`, `api`, `apikey`, `auth`,
+  `bearer`, `credential`, `access_token`) delimited by `_`, `-`, or
+  start/end of string. The value must be ≥ 8 characters, not a placeholder,
+  and contain both letters and digits. Catches patterns like
+  `MISTRAL_API_KEY=KnIjerNTEj215TdLLHuOofGeZQZYwV8c` that the regex layer
+  would miss. Does not re-claim spans already owned by explicit or regex layers.
+- **`KEYWARD_ENTROPY=1` detector** (`source: entropy`, opt-in): flags any
+  standalone high-entropy token (≥ 20 chars, Shannon entropy ≥ 4.0 bits) not
+  excluded as a UUID, MD5/SHA1/SHA256 hex hash, or placeholder. Off by default
+  to avoid false positives; enable for maximum recall on prefix-less tokens.
+- **`shannon_entropy(s)`** and **`is_random_token(s, min_len, min_entropy)`**
+  primitives in `detect.py` (stdlib, no dependencies).
+- **Gitleaks "wide mode" documentation**: expanded the README and Configuration
+  table to explain how `KEYWARD_USE_GITLEAKS=1` fits into the detection stack,
+  what it catches beyond the built-in regex library (prefix-less random tokens,
+  PEM blocks, 100+ additional providers), and the ~50–150 ms per-prompt cost.
+- **`tests/benchmark_entropy.py`**: standalone sweep script (not a unittest)
+  that measures FP/FN rates over a labelled corpus across a grid of
+  `min_entropy` (3.0→5.0, step 0.25) × `min_len` (16/20/24) combinations and
+  prints a recommended operating point.
+- 14 new unit tests covering context detection, entropy primitives, and the
+  entropy layer opt-in behaviour (50 tests total, all passing).
+
 ## [0.1.0] — 2026-06-09
 
 Initial release.
