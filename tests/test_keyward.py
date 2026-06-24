@@ -104,6 +104,10 @@ class TestDetect(unittest.TestCase):
     def test_explicit_slash(self):
         self.assert_single("/key openai=mysupersecretvalue123 go", "openai", "mysupersecretvalue123", "explicit_slash")
 
+    def test_explicit_slash_namespaced(self):
+        # Plugin commands are invoked with the namespace (/keyward:key …); the detector must match that too.
+        self.assert_single("/keyward:key openai=mysupersecretvalue123 go", "openai", "mysupersecretvalue123", "explicit_slash")
+
     def test_explicit_named(self):
         self.assert_single("deploy KEY:stripe=sk_custom_xyz now", "stripe", "sk_custom_xyz", "explicit_named")
 

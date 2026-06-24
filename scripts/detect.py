@@ -62,8 +62,8 @@ REGEX_PATTERNS: list[tuple[str, re.Pattern]] = [
 # Explicit markers — what the user types to force-tag a secret.
 # All produce named slots.
 # ---------------------------------------------------------------------------
-# /key NAME=VALUE      (slash command form)
-EXPLICIT_SLASH = re.compile(r"/key\s+([A-Za-z][A-Za-z0-9_\-]{0,63})=(\S+)")
+# /key NAME=VALUE  or  /<plugin>:key NAME=VALUE   (slash form, namespaced or not)
+EXPLICIT_SLASH = re.compile(r"/(?:[\w-]+:)?key\s+([A-Za-z][A-Za-z0-9_\-]{0,63})=(\S+)")
 # KEY:NAME=VALUE       (inline marker with explicit name)
 EXPLICIT_NAMED = re.compile(r"\bKEY:([A-Za-z][A-Za-z0-9_\-]{0,63})=(\S+)")
 # KEY=VALUE            (inline marker, default slot)
