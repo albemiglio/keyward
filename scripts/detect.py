@@ -182,19 +182,67 @@ def shannon_entropy(s: str) -> float:
 _UUID_RE = re.compile(
     r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 )
-# Pure hex strings of lengths associated with hashes: MD5=32, SHA1=40, SHA256=64.
-_HEX_HASH_RE = re.compile(r"^[0-9a-fA-F]{32}$|^[0-9a-fA-F]{40}$|^[0-9a-fA-F]{64}$")
+# Pure hex of ANY length >= 16 (covers MD5=32, SHA1=40, SHA256=64, git refs, arbitrary digests).
+_HEX_ANY_RE = re.compile(r"^[0-9a-fA-F]{16,}$")
+# Hex color codes: optional leading #, 6 or 8 hex digits.
+_HEX_COLOR_RE = re.compile(r"^#?[0-9a-fA-F]{6,8}$")
+# All-digit strings (long numeric IDs, timestamps, phone numbers, etc.).
+_ALL_DIGITS_RE = re.compile(r"^\d+$")
+
+import base64 as _base64
 
 
-def is_random_token(s: str, min_len: int = 20, min_entropy: float = 4.0) -> bool:
+def _is_base64_readable_text(s: str) -> bool:
+    """Return True if *s* is valid base64 that decodes to mostly printable ASCII.
+
+    Heuristic: if >80% of the decoded bytes are printable ASCII (0x20–0x7E
+    plus common whitespace), the value is almost certainly encoded plain text,
+    not a binary secret.  Best-effort — returns False on any error.
+    """
+    try:
+        # base64.b64decode accepts standard and URL-safe alphabets; pad as needed.
+        padded = s + "=" * (-len(s) % 4)
+        decoded = _base64.b64decode(padded, validate=False)
+        if not decoded:
+            return False
+        printable = sum(1 for b in decoded if 0x20 <= b <= 0x7E or b in (9, 10, 13))
+        return (printable / len(decoded)) > 0.80
+    except Exception:
+        return False
+
+
+def _count_char_classes(s: str) -> int:
+    """Count how many of {lowercase, uppercase, digits} are present in *s*."""
+    has_lower = bool(re.search(r"[a-z]", s))
+    has_upper = bool(re.search(r"[A-Z]", s))
+    has_digit = bool(re.search(r"[0-9]", s))
+    return sum([has_lower, has_upper, has_digit])
+
+
+def is_random_token(
+    s: str,
+    min_len: int = 20,
+    min_entropy: float = 4.0,
+    min_char_classes: int = 3,
+) -> bool:
     """Return True if *s* looks like a random secret token (entropy-based).
 
-    Excluded:
-    - UUID (8-4-4-4-12 hex with dashes)
-    - Pure hex of length 32 (MD5), 40 (SHA1), or 64 (SHA256)
-    - Placeholders (see looks_like_placeholder)
+    Excluded (structural filters — remove FPs without touching recall):
     - Strings shorter than *min_len*
+    - Placeholders (see looks_like_placeholder)
+    - UUID (8-4-4-4-12 hex with dashes)
+    - Pure hex of any length >= 16 (covers MD5/SHA1/SHA256 and arbitrary digests,
+      git refs, and hex-encoded IDs — these have at most 2 charset classes)
+    - Hex colour codes (#rrggbb / #rrggbbaa)
+    - All-digit strings (numeric IDs, timestamps, etc.)
+    - Base64 that decodes to mostly printable ASCII text (encoded prose, not keys)
     - Strings with entropy < *min_entropy*
+
+    Charset-diversity gate (precision lever):
+    - The token must contain at least *min_char_classes* distinct character classes
+      from {lowercase, uppercase, digits}.  Real API keys almost always mix all
+      three; hex digests and other structured strings typically have only two.
+      Set min_char_classes=0 to disable this gate.
     """
     if len(s) < min_len:
         return False
@@ -202,7 +250,15 @@ def is_random_token(s: str, min_len: int = 20, min_entropy: float = 4.0) -> bool
         return False
     if _UUID_RE.match(s):
         return False
-    if _HEX_HASH_RE.match(s):
+    if _HEX_ANY_RE.match(s):
+        return False
+    if _HEX_COLOR_RE.match(s):
+        return False
+    if _ALL_DIGITS_RE.match(s):
+        return False
+    if _is_base64_readable_text(s):
+        return False
+    if min_char_classes > 0 and _count_char_classes(s) < min_char_classes:
         return False
     return shannon_entropy(s) >= min_entropy
 
