@@ -190,9 +190,9 @@ class TestDetect(unittest.TestCase):
     def test_context_mistral_api_key(self):
         # A real-looking key with a key-ish name should be detected as context
         self.assert_single(
-            "MISTRAL_API_KEY=KnIjerNTEj215TdLLHuOofGeZQZYwV8c",
+            "MISTRAL_API_KEY=Ab12-Cd34-Ef56-Gh78-Ij90",
             "MISTRAL_API_KEY",
-            "KnIjerNTEj215TdLLHuOofGeZQZYwV8c",
+            "Ab12-Cd34-Ef56-Gh78-Ij90",
             "context",
         )
 

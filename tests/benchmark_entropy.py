@@ -45,7 +45,7 @@ POSITIVES = [
     "a1b2c3d4e5f6a7b8c9d0e1f2",           # 24 hex chars
     "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8",  # 38 hex chars (not 40=sha1)
     # Typical API key formats without known prefixes
-    "KnIjerNTEj215TdLLHuOofGeZQZYwV8c",   # Mistral-style 32-char base62
+    "Zx9Qw2Ep7Rk4Tn6Vb1Mc3Df5Gh8Jl-A",   # synthetic mixed token (no real key)
     "t0k3nV4lU3-xYz_AbCdEfGhIjKlMnOpQr",  # hyphen/underscore mixed
     "eyJzdWIiOiJ0ZXN0In0",                 # JWT-segment-ish (shorter base64url)
     "Bearer_v2_sEcR3TaB1C2D3E4F5",        # bearer-style token
