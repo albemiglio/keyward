@@ -331,6 +331,13 @@ def detect(prompt: str) -> dict:
     found: list[dict] = []
     claimed_spans: list[tuple[int, int]] = []
 
+    # Idempotency / loop guard: pre-claim any already-sanitized reference spans
+    # (<<secret:NAME stored at ...>>) so no layer re-detects the hook's own output.
+    # Without this, explicit /key and digit-named context paths re-fire on the
+    # sanitized prompt and the block+auto-paste mechanism loops.
+    for _m in re.finditer(r"<<secret:[^>]*>>", prompt):
+        claimed_spans.append((_m.start(), _m.end()))
+
     def overlaps(start: int, end: int) -> bool:
         return any(not (end <= s or start >= e) for s, e in claimed_spans)
 

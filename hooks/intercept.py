@@ -218,6 +218,10 @@ def main() -> int:
             return 0
 
     sanitized = sanitize_prompt(prompt, secrets_found)
+    # Backstop: if sanitization changed nothing, re-submitting would loop. Pass through.
+    if sanitized == prompt:
+        emit({})
+        return 0
     tmp = write_tempfile(sanitized)
     spawn_detached([
         sys.executable, str(SCRIPTS_DIR / "automate_paste.py"),
